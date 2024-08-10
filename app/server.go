@@ -20,8 +20,14 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
-	
-	for i := 0; i < 2; i++ {
+	defer conn.Close();
+	for {
+		buf := make([]byte, 1024)
+		_, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("Error reading connection: ", err.Error())
+		}
+		fmt.Println("Receive: ", string(buf))
 		_, err = conn.Write([]byte("+PONG\r\n"))
 		if err != nil {
 			fmt.Println("Error writing connection: ", err.Error())
