@@ -47,13 +47,13 @@ func handleCommand(command string, orgStr []byte) string {
 func handleString(str []byte) string {
 	newStr := string(str)
 	parts := strings.Split(newStr, "\n")
-	cmd := strings.ToLower(strings.TrimSpace(parts[0]))
+	cmd := strings.ToLower(strings.TrimSpace(parts[1]))
 	fmt.Println("part[0]: ", parts[0])
 	fmt.Println("newStr: ", newStr)
 	
 	switch cmd {
 	case ECHO:
-		return stringResponse(strings.TrimSpace(parts[2]))
+		return stringResponse(strings.TrimSpace(parts[3]))
 	case PING: 
 		return stringResponse("PONG")
 	}
