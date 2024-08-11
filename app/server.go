@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
 	l, err := net.Listen("tcp", "0.0.0.0:6379")
@@ -33,8 +32,10 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			fmt.Println("Error reading connection: ", err.Error())
 		}
-		fmt.Println("Receive: ", string(buf[:n]))
-		_, err = conn.Write([]byte("+PONG\r\n"))
+
+		res := handler(buf[:n])
+		// res := string(buf[:n])
+		_, err = conn.Write([]byte(res))
 		if err != nil {
 			fmt.Println("Error writing connection: ", err.Error())
 		}
