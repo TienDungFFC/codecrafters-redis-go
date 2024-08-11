@@ -48,7 +48,7 @@ func handleString(str []byte) string {
 	newStr := string(str)
 	parts := strings.Split(newStr, "\n")
 	cmd := strings.ToLower(strings.TrimSpace(parts[1]))
-	fmt.Println("part[0]: ", parts[0])
+	fmt.Println("part[0]: ", parts[1])
 	fmt.Println("newStr: ", newStr)
 	
 	switch cmd {
