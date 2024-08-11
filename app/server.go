@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -30,7 +32,11 @@ func handleConnection(conn net.Conn) {
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
 		if err != nil {
-			fmt.Println("Error reading connection: ", err.Error())
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			fmt.Println("Error reading data: ", err.Error())
+			os.Exit(1)
 		}
 
 		res := handler(buf[:n])
@@ -38,6 +44,7 @@ func handleConnection(conn net.Conn) {
 		_, err = conn.Write([]byte(res))
 		if err != nil {
 			fmt.Println("Error writing connection: ", err.Error())
+			os.Exit(1)
 		}
 	}
 }
