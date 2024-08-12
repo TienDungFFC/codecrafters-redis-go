@@ -36,7 +36,7 @@ func handleConnection(conn net.Conn) {
 				break
 			}
 			fmt.Println("Error reading data: ", err.Error())
-			os.Exit(1)
+			continue;
 		}
 
 		res := handler(buf[:n])
