@@ -12,7 +12,7 @@ import (
 func main() {
 	fmt.Println("Logs from your program will appear here!")
 	port := flag.String("port", "6379", "port to run redis. default is 6379")
-
+	fmt.Println("test ports: ", *port)
 	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", *port))
 	// l, err := net.Listen("tcp", "0.0.0.0:6379")
 
