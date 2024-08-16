@@ -62,7 +62,7 @@ func main() {
 			os.Exit(1)
 		}
 		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
-		fmt.Println("nByte: ", rep[0])
+		fmt.Println("connecction: ", conn)
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
