@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -10,8 +11,9 @@ import (
 
 func main() {
 	fmt.Println("Logs from your program will appear here!")
-
-	l, err := net.Listen("tcp", "0.0.0.0:6379")
+	port := flag.String("port", "6379", "Port to connect to")
+	flag.Parse()
+	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", port))
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
@@ -36,7 +38,7 @@ func handleConnection(conn net.Conn) {
 				break
 			}
 			fmt.Println("Error reading data: ", err.Error())
-			continue;
+			continue
 		}
 
 		res := handler(buf[:n])
