@@ -20,11 +20,9 @@ func readCommand(cmd []byte) ([][]byte, error) {
 				continue
 			}
 			if cmd[i] == '$' {
-				fmt.Println("newBulkString: ", 1)
-
-				lBulk, _ := strconv.Atoi(string(cmd[i+1]))
+				lBulk, cByte := parseInt(cmd[i+1:])
 				newBulkStr := []byte{}
-				for j := i + 2; j <= i+lBulk+3; j++ {
+				for j := i + cByte + 1; j <= i+lBulk+cByte+2; j++ {
 					if cmd[j] == '\r' || cmd[j] == '\n' {
 						continue
 					} else {
@@ -40,4 +38,19 @@ func readCommand(cmd []byte) ([][]byte, error) {
 		return args, nil
 	}
 	return [][]byte{}, nil
+}
+
+func parseInt(arg []byte) (int, int) {
+	res := []byte{}
+	cByte := 0
+	for i := 0; i < len(arg); i++ {
+		if arg[i] != '\r' {
+			res = append(res, arg[i])
+			cByte++
+		} else {
+			break
+		}
+	}
+	nByte, _ := strconv.Atoi(string(res))
+	return nByte, cByte
 }
