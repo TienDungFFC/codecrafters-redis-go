@@ -20,6 +20,9 @@ const (
 	INFO = "info"
 )
 
+var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
+	"repl_backlog_first_byte_offset", "repl_backlog_histlen"}
+
 type Value struct {
 	val []byte
 	px  time.Time
@@ -75,7 +78,7 @@ func (s Server) handlecommand(args [][]byte) string {
 		}
 	case INFO:
 		if string(args[1]) == "replication" {
-			return infoReplicationResponse(string(s.role))
+			return s.infoReplicationResponse()
 		}
 	}
 	return stringResponse("unknown")
@@ -89,11 +92,23 @@ func nullBulkStringResponse() string {
 	return "$-1\r\n"
 }
 func bulkStringResponse(s string) string {
-	fmt.Println("len(s): ", len(s))
-	fmt.Println("s: ", s)
 	return fmt.Sprintf("$%d\r\n%v\r\n", len(s), s)
 }
 
-func infoReplicationResponse(s string) string {
-	return fmt.Sprintf("$%d\r\nrole:%v\r\n", len(s)+5, s)
+func (s Server) infoReplicationResponse() string {
+	var infoResp string
+	infoResp += s.getRoleInfo() + s.getReplId() + s.getReplOffset()
+	return infoResp
+}
+
+func (s Server) getRoleInfo() string {
+	return fmt.Sprintf("$%d\r\nrole:%v\r\n", len(s.role)+5, s.role)
+}
+
+func (s Server) getReplId() string {
+	return fmt.Sprintf("$%d\r\nmaster_replid:%v\r\n", len(s.repliId)+len("master_replid")+1, s.repliId)
+}
+
+func (s Server) getReplOffset() string {
+	return fmt.Sprintf("$%d\r\nmaster_repl_offset:%v\r\n", len(s.replOffset)+len("master_repl_offset")+1, s.replOffset)
 }

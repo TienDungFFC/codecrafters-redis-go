@@ -22,8 +22,10 @@ var (
 )
 
 type Server struct {
-	role Role
-	port string
+	role       Role
+	port       string
+	repliId    string
+	replOffset string
 }
 
 func init() {
@@ -38,8 +40,10 @@ func NewServer() Server {
 		role = SLAVE
 	}
 	return Server{
-		role: role,
-		port: *port,
+		role:       role,
+		port:       *port,
+		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
+		replOffset: "0",
 	}
 }
 
