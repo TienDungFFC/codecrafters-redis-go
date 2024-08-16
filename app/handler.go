@@ -31,16 +31,6 @@ type Value struct {
 var mSet = make(map[string]Value)
 
 func (s Server) handler(str []byte) string {
-	// fChar := str[0]
-	// switch fChar {
-	// case ARRAY:
-	// 	return handler(str[4:])
-	// case BULK_STRING:
-	// 	return handleString(str)
-	// default:
-	// 	return "PONG"
-	// }
-	fmt.Println("string: ", str)
 	args, _ := readCommand(str)
 	return s.handlecommand(args)
 }
@@ -96,19 +86,18 @@ func bulkStringResponse(s string) string {
 }
 
 func (s Server) infoReplicationResponse() string {
-	var infoResp string
-	infoResp += s.getRoleInfo() + s.getReplId() + s.getReplOffset()
-	return infoResp
+	infoResp := s.getRoleInfo() + s.getReplId() + s.getReplOffset()
+	return fmt.Sprintf("$%d%v", len(infoResp), infoResp)
 }
 
 func (s Server) getRoleInfo() string {
-	return fmt.Sprintf("$%d\r\nrole:%v\r\n", len(s.role)+5, s.role)
+	return fmt.Sprintf("\r\nrole:%v", s.role)
 }
 
 func (s Server) getReplId() string {
-	return fmt.Sprintf("$%d\r\nmaster_replid:%v\r\n", len(s.repliId)+len("master_replid")+1, s.repliId)
+	return fmt.Sprintf("\r\nmaster_replid:%v", s.repliId)
 }
 
 func (s Server) getReplOffset() string {
-	return fmt.Sprintf("$%d\r\nmaster_repl_offset:%v\r\n", len(s.replOffset)+len("master_repl_offset")+1, s.replOffset)
+	return fmt.Sprintf("\r\nmaster_repl_offset:%v", s.replOffset)
 }
