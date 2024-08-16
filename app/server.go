@@ -13,7 +13,7 @@ func main() {
 	fmt.Println("Logs from your program will appear here!")
 	port := flag.String("port", "6379", "Port to connect to")
 	flag.Parse()
-	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", port))
+	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", *port))
 	if err != nil {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
