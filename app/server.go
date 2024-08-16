@@ -9,13 +9,47 @@ import (
 	"os"
 )
 
+const (
+	MASTER Role = "master"
+	SLAVE  Role = "slave"
+)
+
+type Role string
+
+var (
+	port      *string
+	replicaof *string
+)
+
+type Server struct {
+	role Role
+	port string
+}
+
+func init() {
+	port = flag.String("port", "6379", "Port to connect to")
+	replicaof = flag.String("replicaof", "", "Replica of master")
+	flag.Parse()
+}
+
+func NewServer() Server {
+	role := MASTER
+	if *replicaof != "" {
+		role = SLAVE
+	}
+	return Server{
+		role: role,
+		port: *port,
+	}
+}
+
 func main() {
 	fmt.Println("Logs from your program will appear here!")
-	port := flag.String("port", "6379", "Port to connect to")
-	flag.Parse()
-	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", *port))
+
+	server := NewServer()
+	l, err := server.ListenNetwork()
 	if err != nil {
-		fmt.Println("Failed to bind to port 6379")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	for {
@@ -29,7 +63,15 @@ func main() {
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func (s Server) ListenNetwork() (net.Listener, error) {
+	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", s.port))
+	if err != nil {
+		return nil, err
+	}
+	return l, nil
+}
+
+func (s Server) handleConnection(conn net.Conn) {
 	for {
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
@@ -41,7 +83,7 @@ func handleConnection(conn net.Conn) {
 			continue
 		}
 
-		res := handler(buf[:n])
+		res := s.handler(buf[:n])
 		// res := string(buf[:n])
 		_, err = conn.Write([]byte(res))
 		if err != nil {

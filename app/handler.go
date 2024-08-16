@@ -27,7 +27,7 @@ type Value struct {
 
 var mSet = make(map[string]Value)
 
-func handler(str []byte) string {
+func (s Server) handler(str []byte) string {
 	// fChar := str[0]
 	// switch fChar {
 	// case ARRAY:
@@ -39,10 +39,10 @@ func handler(str []byte) string {
 	// }
 	fmt.Println("string: ", str)
 	args, _ := readCommand(str)
-	return handlecommand(args)
+	return s.handlecommand(args)
 }
 
-func handlecommand(args [][]byte) string {
+func (s Server) handlecommand(args [][]byte) string {
 	cmd := strings.ToLower(string(args[0]))
 
 	switch cmd {
@@ -75,7 +75,7 @@ func handlecommand(args [][]byte) string {
 		}
 	case INFO:
 		if string(args[1]) == "replication" {
-			return infoReplicationResponse("master")
+			return infoReplicationResponse(string(s.role))
 		}
 	}
 	return stringResponse("unknown")
