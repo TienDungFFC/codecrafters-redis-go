@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strings"
 )
 
 const (
@@ -26,6 +27,7 @@ type Server struct {
 	port       string
 	repliId    string
 	replOffset string
+	replicaof *string
 }
 
 func init() {
@@ -44,6 +46,7 @@ func NewServer() Server {
 		port:       *port,
 		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 		replOffset: "0",
+		replicaof: replicaof,
 	}
 }
 
@@ -51,6 +54,18 @@ func main() {
 	fmt.Println("Logs from your program will appear here!")
 
 	server := NewServer()
+	if server.role == SLAVE {
+		rep := strings.Split(*server.replicaof, " ")
+		conn, err := server.connectMaster(rep[0], rep[1])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
+		if err != nil {
+			fmt.Println("Sending PING error")
+		}
+	}
 	l, err := server.ListenNetwork()
 	if err != nil {
 		fmt.Println(err)
@@ -65,6 +80,16 @@ func main() {
 
 		go server.handleConnection(conn)
 	}
+}
+
+func (s Server) connectMaster(host, port string) (net.Conn, error) {
+	conn, err := net.Dial("tcp", fmt.Sprintf("%v:%v", host, port))
+	   if err != nil {
+        fmt.Println("Error:", err)
+        return nil, err
+    }
+	defer conn.Close()
+	return conn, nil
 }
 
 func (s Server) ListenNetwork() (net.Listener, error) {
