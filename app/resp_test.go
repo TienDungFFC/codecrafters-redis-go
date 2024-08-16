@@ -25,6 +25,12 @@ func TestReadCommand(t *testing.T) {
 			expected:    [][]byte{[]byte("SET"), []byte("foo"), []byte("bar"), []byte("px"), []byte("100")},
 			expectError: false,
 		},
+		{
+			name:        "Valid command with 5 arguments",
+			input:       []byte("*2\r\n$4\r\nINFO\r\n$11\r\nreplication\r\n"),
+			expected:    [][]byte{[]byte("INFO"), []byte("replication")},
+			expectError: false,
+		},
 	}
 
 	for _, tt := range tests {

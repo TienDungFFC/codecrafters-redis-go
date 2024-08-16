@@ -17,7 +17,11 @@ const (
 	PING = "ping"
 	SET  = "set"
 	GET  = "get"
+	INFO = "info"
 )
+
+var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
+	"repl_backlog_first_byte_offset", "repl_backlog_histlen"}
 
 type Value struct {
 	val []byte
@@ -26,22 +30,12 @@ type Value struct {
 
 var mSet = make(map[string]Value)
 
-func handler(str []byte) string {
-	// fChar := str[0]
-	// switch fChar {
-	// case ARRAY:
-	// 	return handler(str[4:])
-	// case BULK_STRING:
-	// 	return handleString(str)
-	// default:
-	// 	return "PONG"
-	// }
-	fmt.Println("string: ", str)
+func (s Server) handler(str []byte) string {
 	args, _ := readCommand(str)
-	return handlecommand(args)
+	return s.handlecommand(args)
 }
 
-func handlecommand(args [][]byte) string {
+func (s Server) handlecommand(args [][]byte) string {
 	cmd := strings.ToLower(string(args[0]))
 
 	switch cmd {
@@ -72,7 +66,10 @@ func handlecommand(args [][]byte) string {
 		} else {
 			return nullBulkStringResponse()
 		}
-
+	case INFO:
+		if string(args[1]) == "replication" {
+			return s.infoReplicationResponse()
+		}
 	}
 	return stringResponse("unknown")
 }
@@ -85,7 +82,22 @@ func nullBulkStringResponse() string {
 	return "$-1\r\n"
 }
 func bulkStringResponse(s string) string {
-	fmt.Println("len(s): ", len(s))
-	fmt.Println("s: ", s)
 	return fmt.Sprintf("$%d\r\n%v\r\n", len(s), s)
+}
+
+func (s Server) infoReplicationResponse() string {
+	infoResp := s.getRoleInfo() + s.getReplOffset() + s.getReplId()
+	return fmt.Sprintf("$%d%v\r\n", len(infoResp)-2, infoResp)
+}
+
+func (s Server) getRoleInfo() string {
+	return fmt.Sprintf("\r\nrole:%v", s.role)
+}
+
+func (s Server) getReplId() string {
+	return fmt.Sprintf("\r\nmaster_replid:%v", s.repliId)
+}
+
+func (s Server) getReplOffset() string {
+	return fmt.Sprintf("\r\nmaster_repl_offset:%v", s.replOffset)
 }
