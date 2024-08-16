@@ -61,6 +61,7 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		defer conn.Close()
 		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 		fmt.Println("connecction: ", conn)
 		if err != nil {
@@ -85,11 +86,10 @@ func main() {
 
 func (s Server) connectMaster(host, port string) (net.Conn, error) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%v:%v", host, port))
-	   if err != nil {
+	if err != nil {
         fmt.Println("Error:", err)
         return nil, err
     }
-	defer conn.Close()
 	return conn, nil
 }
 
