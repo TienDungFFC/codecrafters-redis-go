@@ -17,6 +17,7 @@ const (
 	PING = "ping"
 	SET  = "set"
 	GET  = "get"
+	INFO = "info"
 )
 
 type Value struct {
@@ -72,7 +73,10 @@ func handlecommand(args [][]byte) string {
 		} else {
 			return nullBulkStringResponse()
 		}
-
+	case INFO:
+		if string(args[1]) == "replication" {
+			return infoReplicationResponse("master")
+		}
 	}
 	return stringResponse("unknown")
 }
@@ -88,4 +92,8 @@ func bulkStringResponse(s string) string {
 	fmt.Println("len(s): ", len(s))
 	fmt.Println("s: ", s)
 	return fmt.Sprintf("$%d\r\n%v\r\n", len(s), s)
+}
+
+func infoReplicationResponse(s string) string {
+	return fmt.Sprintf("$%d\r\nrole:%v\r\n", len(s)+5, s)
 }
