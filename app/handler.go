@@ -87,7 +87,7 @@ func bulkStringResponse(s string) string {
 
 func (s Server) infoReplicationResponse() string {
 	infoResp := s.getRoleInfo() + s.getReplId() + s.getReplOffset()
-	return fmt.Sprintf("$%d%v\r\n", len(infoResp)+2, infoResp)
+	return fmt.Sprintf("$%d%v", len(infoResp)+2, infoResp)
 }
 
 func (s Server) getRoleInfo() string {
