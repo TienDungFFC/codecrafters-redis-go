@@ -69,7 +69,7 @@ func main() {
 		}
 				time.Sleep(1 * time.Second)
 
-		_, err = conn.Write([]byte("*33\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
+		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
