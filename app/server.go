@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -66,11 +67,15 @@ func main() {
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
-		conn.Write([]byte("*33\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
+				time.Sleep(1 * time.Second)
+
+		_, err = conn.Write([]byte("*33\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
-		conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
+						time.Sleep(1 * time.Second)
+
+		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
