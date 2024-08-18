@@ -109,5 +109,5 @@ func (s Server) getReplOffset() string {
 }
 
 func (s Server) fullResync() string {
-	return fmt.Sprintf("+FULLRESYNC %s %d", s.repliId, s.replOffset)
+	return fmt.Sprintf("+FULLRESYNC %s %d\r\n", s.repliId, s.replOffset)
 }
