@@ -18,6 +18,7 @@ const (
 	SET  = "set"
 	GET  = "get"
 	INFO = "info"
+	REPLCONF = "replconf"
 )
 
 var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
@@ -70,6 +71,8 @@ func (s Server) handlecommand(args [][]byte) string {
 		if string(args[1]) == "replication" {
 			return s.infoReplicationResponse()
 		}
+	case REPLCONF:
+		return stringResponse("OK")
 	}
 	return stringResponse("unknown")
 }
