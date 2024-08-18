@@ -19,6 +19,7 @@ const (
 	GET  = "get"
 	INFO = "info"
 	REPLCONF = "replconf"
+	PSYNC = "psync"
 )
 
 var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
@@ -73,6 +74,8 @@ func (s Server) handlecommand(args [][]byte) string {
 		}
 	case REPLCONF:
 		return stringResponse("OK")
+	case PSYNC: 
+		return s.fullResync()
 	}
 	return stringResponse("unknown")
 }
@@ -103,4 +106,8 @@ func (s Server) getReplId() string {
 
 func (s Server) getReplOffset() string {
 	return fmt.Sprintf("\r\nmaster_repl_offset:%v", s.replOffset)
+}
+
+func (s Server) fullResync() string {
+	return fmt.Sprintf("+FULLRESYNC %s %d", s.repliId, s.replOffset)
 }
