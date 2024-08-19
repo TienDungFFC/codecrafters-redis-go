@@ -93,7 +93,7 @@ func (s Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
-		s.cRepl = append(s.cRepl, &s.conn)
+		s.cRepl = append(s.cRepl, s.conn)
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
@@ -105,7 +105,7 @@ func (s Server) handleEcho() {
 }
 
 func (s Server) writeData(str string) {
-	_, err := s.conn.Write([]byte(str))
+	_, err := (*s.conn).Write([]byte(str))
 	if err != nil {
 		fmt.Println("Error writing connection: ", err.Error())
 	}

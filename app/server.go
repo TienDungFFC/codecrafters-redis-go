@@ -30,7 +30,7 @@ type Server struct {
 	replOffset string
 	replicaof  *string
 	cmd        Command
-	conn       net.Conn
+	conn       *net.Conn
 	cRepl      []*net.Conn
 }
 
@@ -40,7 +40,7 @@ func init() {
 	flag.Parse()
 }
 
-func NewServer(conn net.Conn, r Role) *Server {
+func NewServer(conn *net.Conn, r Role) *Server {
 
 	return &Server{
 		role:       r,
@@ -62,30 +62,30 @@ func main() {
 	if role == SLAVE {
 		rep := strings.Split(*replicaof, " ")
 		conn, err := connectMaster(rep[0], rep[1])
-		server := NewServer(conn, role)
+		server := NewServer(&conn, role)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		defer server.conn.Close()
-		_, err = server.conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
+		defer (*server.conn).Close()
+		_, err = (*server.conn).Write([]byte("*1\r\n$4\r\nPING\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
+		_, err = (*server.conn).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
+		_, err = (*server.conn).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
-		_, err = server.conn.Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
+		_, err = (*server.conn).Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
@@ -97,7 +97,7 @@ func main() {
 	}
 	for {
 		conn, err := l.Accept()
-		mServer := NewServer(conn, role)
+		mServer := NewServer(&conn, role)
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
