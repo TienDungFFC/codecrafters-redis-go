@@ -64,7 +64,9 @@ func (s Server) handlecommand(args [][]byte) {
 		fmt.Println("slaveConn: ", s.cRepl)
 		if s.role == MASTER && s.cRepl != nil {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
-			(*s.cRepl).Write((s.cmd.Raw))
+			for _, c := range s.cRepl {
+				(*c).Write((s.cmd.Raw))
+			}
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
@@ -91,7 +93,7 @@ func (s Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
-		s.cRepl = &s.conn
+		s.cRepl = append(s.cRepl, &s.conn)
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
