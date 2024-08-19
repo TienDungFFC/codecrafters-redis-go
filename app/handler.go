@@ -85,8 +85,9 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 	case REPLCONF:
 		s.writeData(simpleStringResponse("OK"))
-		fmt.Println("replica connection: ", s.conn)
+		fmt.Println("append scon: ", s.conn)
 		s.cRepl = append(s.cRepl, &s.conn)
+		fmt.Println("cRepl after append: ", s.cRepl)
 
 	case PSYNC:
 		s.writeData(s.fullResync())
