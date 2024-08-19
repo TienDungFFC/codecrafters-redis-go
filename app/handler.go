@@ -60,11 +60,13 @@ func (s *Server) handlecommand(args [][]byte) {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
-		s.writeData(simpleStringResponse("OK"))
+
+		if s.role == MASTER {
+			s.writeData(simpleStringResponse("OK"))
+		}
 		fmt.Println("replica connection at set: ", s.cRepl)
 
 		if s.role == MASTER && len(slaves) > 0 {
-			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
 			}
