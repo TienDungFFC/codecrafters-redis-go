@@ -94,6 +94,7 @@ func main() {
 		n, _ := conn.Read(buff)
 		response := string(buff[:n])
 		fmt.Println("received4", response)
+		go server.handleConnection()
 	}
 	l, err := ListenNetwork()
 	if err != nil {
