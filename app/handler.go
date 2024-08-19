@@ -61,7 +61,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
-		fmt.Println("replica connection at set: ", s.conn)
+		fmt.Println("replica connection at set: ", s.cRepl)
 
 		if s.role == MASTER && len(s.cRepl) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
@@ -97,8 +97,6 @@ func (s *Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
-		fmt.Println("replica connection: ", s.conn)
-		fmt.Println("check cRepl: ", s.cRepl)
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
