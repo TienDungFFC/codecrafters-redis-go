@@ -86,8 +86,6 @@ func (s Server) handleEcho() {
 }
 
 func (s Server) writeData(str string) {
-	s.writeMutex.Lock()
-	defer s.writeMutex.Unlock()
 	_, err := s.conn.Write([]byte(str))
 	if err != nil {
 		fmt.Println("Error writing connection: ", err.Error())
