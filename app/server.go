@@ -66,6 +66,7 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		defer conn.Close()
 		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
