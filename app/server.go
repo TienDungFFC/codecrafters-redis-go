@@ -130,6 +130,7 @@ func (s *Server) handleConnection() {
 	for {
 		buf := make([]byte, 1024)
 		n, err := s.conn.Read(buf)
+		fmt.Println("buffer: ", string(buf))
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
