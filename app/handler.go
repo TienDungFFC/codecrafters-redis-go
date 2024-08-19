@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
@@ -78,6 +79,13 @@ func (s Server) handlecommand(args [][]byte) {
 		s.writeData(simpleStringResponse("OK"))
 	case PSYNC:
 		s.writeData(s.fullResync())
+		emptyRDBStr := "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2"
+		_, err := hex.DecodeString(emptyRDBStr)
+		if err != nil {
+			fmt.Println("Error decoding", err)
+		}
+		s.writeData(fmt.Sprintf("%d\r\n%v", len(emptyRDBStr), emptyRDBStr))
+
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
