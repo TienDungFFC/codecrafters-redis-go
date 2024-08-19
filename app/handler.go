@@ -65,8 +65,8 @@ func (s *Server) handlecommand(args [][]byte) {
 
 		if s.role == MASTER && len(slaves) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
-			for _, s := range slaves {
-				(*s).Write([]byte(fmt.Sprintf("*3\r\n$3\r\nSET\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", 3, "foo", 3, "123")))
+			for _, slave := range slaves {
+				(*slave).Write(s.cmd.Raw)
 			}
 		}
 	case GET:
