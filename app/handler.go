@@ -94,7 +94,6 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
 		s.cRepl = append(s.cRepl, &s.conn)
-		fmt.Println("s.cRepl", s.cRepl)
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
