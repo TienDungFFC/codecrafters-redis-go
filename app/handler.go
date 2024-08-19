@@ -84,9 +84,10 @@ func (s Server) handlecommand(args [][]byte) {
 		if err != nil {
 			fmt.Println("Error decoding", err)
 		}
-		s.writeData(fmt.Sprintf("$%d\r\n%s", len(emptyRDBStr), string(emptyRDBStr)))
+		// s.writeData(fmt.Sprintf("$%d\r\n%s", len(emptyRDBStr), string(emptyRDBStr)))
 		// string(emptyRDBStr)))
 		// s.writeData(emptyRDBStr)
+		s.writeData("$" + strconv.Itoa(len(emptyRDBStr)) + "\r\n" + string(emptyRDBStr))
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
