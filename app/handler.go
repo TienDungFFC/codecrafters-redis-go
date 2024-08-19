@@ -61,6 +61,7 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
+		s.cRepl = s.conn
 		fmt.Println("slaveConn: ", s.cRepl)
 		if s.role == MASTER && s.cRepl != nil {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
