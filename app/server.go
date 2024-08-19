@@ -131,7 +131,7 @@ func (s Server) handleConnection(conn net.Conn) {
 			fmt.Println("Error reading data: ", err.Error())
 			continue
 		}
-		res := s.handler(buf[:n])
+		s.handler(buf[:n])
 		// res := string(buf[:n])
 		// _, err = conn.Write([]byte(res))
 		// if err != nil {
