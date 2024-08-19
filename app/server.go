@@ -49,7 +49,7 @@ func NewServer(conn net.Conn, r Role) *Server {
 		replOffset: "0",
 		replicaof:  replicaof,
 		conn:       conn,
-		cRepl:      nil,
+		cRepl:      make([]*net.Conn, 0),
 	}
 }
 
