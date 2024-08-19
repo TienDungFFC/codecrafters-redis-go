@@ -64,7 +64,6 @@ func (s *Server) handlecommand(args [][]byte) {
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
-		fmt.Println("replica connection at set: ", s.cRepl)
 		if s.role == MASTER && len(slaves) > 0 {
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
