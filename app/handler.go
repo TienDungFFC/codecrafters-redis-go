@@ -62,8 +62,8 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
-		if s.role == MASTER {
-			s.writeData(string(s.cmd.Raw))
+		if s.role == MASTER && s.cRepl != nil {
+			s.cRepl.Write([]byte(string(s.cmd.Raw)))
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
@@ -80,7 +80,9 @@ func (s Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
+		s.cRepl = s.conn
 		s.writeData(simpleStringResponse("OK"))
+
 	case PSYNC:
 		s.writeData(s.fullResync())
 		emptyRDBStr := "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2"

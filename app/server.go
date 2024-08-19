@@ -31,6 +31,7 @@ type Server struct {
 	replicaof  *string
 	cmd        Command
 	conn       net.Conn
+	cRepl      net.Conn
 }
 
 func init() {
@@ -48,6 +49,7 @@ func NewServer(conn net.Conn, r Role) *Server {
 		replOffset: "0",
 		replicaof:  replicaof,
 		conn:       conn,
+		cRepl:      nil,
 	}
 }
 
