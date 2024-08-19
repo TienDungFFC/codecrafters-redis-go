@@ -134,9 +134,10 @@ func (s *Server) handleConnection() {
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
+			} else {
+				fmt.Println("Error reading request:", err)
+				os.Exit(1)
 			}
-			fmt.Println("Error reading data: ", err.Error())
-			continue
 		}
 		s.handler(buf[:n])
 		// res := string(buf[:n])
