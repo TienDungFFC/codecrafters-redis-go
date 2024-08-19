@@ -84,7 +84,7 @@ func (s Server) handlecommand(args [][]byte) {
 		if err != nil {
 			fmt.Println("Error decoding", err)
 		}
-		s.writeData(fmt.Sprintf("%d\r\n%v", len(emptyRDBStr), emptyRDBStr))
+		s.writeData(fmt.Sprintf("$%d\r\n%v", len(emptyRDBStr), emptyRDBStr))
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
