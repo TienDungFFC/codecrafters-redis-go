@@ -90,13 +90,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
-		buf := make([]byte, 1024)
-		_, err = server.conn.Read(buf)
-		fmt.Println("reading file:", buf)
-		if err != nil {
-			fmt.Println("Read error: ", err)
-		}
-
+		go server.handleConnection()
 	}
 	l, err := ListenNetwork()
 	if err != nil {
