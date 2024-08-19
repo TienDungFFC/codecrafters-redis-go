@@ -84,6 +84,7 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 	case REPLCONF:
 		s.writeData(simpleStringResponse("OK"))
+		fmt.Println("replica connection: ", &s.conn)
 
 	case PSYNC:
 		s.writeData(s.fullResync())
@@ -93,6 +94,7 @@ func (s Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
+		fmt.Println("replica connection: ", &s.conn)
 		s.cRepl = append(s.cRepl, &s.conn)
 
 	default:
