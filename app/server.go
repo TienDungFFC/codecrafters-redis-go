@@ -48,8 +48,8 @@ func NewServer(r Role) *Server {
 		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 		replOffset: "0",
 		replicaof:  replicaof,
-		// conn:       conn,
-		cRepl: make([]*net.Conn, 0),
+		conn:       nil,
+		cRepl:      make([]*net.Conn, 0),
 	}
 }
 
@@ -97,6 +97,7 @@ func main() {
 
 	for {
 		conn, err := l.Accept()
+		mServer.conn = conn
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
