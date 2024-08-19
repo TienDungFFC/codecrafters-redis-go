@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -30,12 +29,10 @@ func readCommand(cmd []byte) ([][]byte, error) {
 						newBulkStr = append(newBulkStr, cmd[j])
 					}
 				}
-				fmt.Println("newBulkString: ", string(newBulkStr))
 				args[iArr] = newBulkStr
 				iArr++
 			}
 		}
-		fmt.Println("args: ", args)
 		return args, nil
 	}
 	return [][]byte{}, nil

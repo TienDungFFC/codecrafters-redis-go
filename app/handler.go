@@ -47,7 +47,6 @@ func (s Server) handlecommand(args [][]byte) {
 	case ECHO:
 		s.handleEcho()
 	case PING:
-		fmt.Println("go ping: ")
 		s.writeData(simpleStringResponse("PONG"))
 	case SET:
 		v := Value{
@@ -62,6 +61,7 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
+		fmt.Println("slaveConn: ", s.cRepl)
 		if s.role == MASTER && s.cRepl != nil {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			s.cRepl.Write((s.cmd.Raw))
@@ -92,6 +92,7 @@ func (s Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
+		s.cRepl = s.conn
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
