@@ -65,7 +65,6 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(simpleStringResponse("OK"))
 		}
 		fmt.Println("replica connection at set: ", s.cRepl)
-
 		if s.role == MASTER && len(slaves) > 0 {
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
@@ -73,7 +72,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
-
+		fmt.Println("map: ", mSet)
 		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
 			s.writeData(bulkStringResponse(strings.TrimSpace(string(val.val))))
 		} else if time.Now().After(val.px) {
