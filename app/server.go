@@ -123,7 +123,7 @@ func ListenNetwork() (net.Listener, error) {
 	return l, nil
 }
 
-func (s Server) handleConnection() {
+func (s *Server) handleConnection() {
 	for {
 		buf := make([]byte, 1024)
 		n, err := s.conn.Read(buf)

@@ -33,14 +33,14 @@ type Value struct {
 
 var mSet = make(map[string]Value)
 
-func (s Server) handler(str []byte) {
+func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
 	s.cmd.Args = args
 	s.cmd.Raw = str
 	s.handlecommand(args)
 }
 
-func (s Server) handlecommand(args [][]byte) {
+func (s *Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
 
 	switch cmd {
