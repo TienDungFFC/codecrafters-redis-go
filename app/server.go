@@ -95,7 +95,7 @@ func main() {
 	}
 	for {
 		conn, err := l.Accept()
-		mServer := NewServer(conn, MASTER)
+		mServer := NewServer(conn, role)
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
