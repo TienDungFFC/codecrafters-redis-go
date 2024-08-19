@@ -62,6 +62,8 @@ func (s Server) handlecommand(args [][]byte) {
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
 		fmt.Println("slaveConn: ", s.cRepl)
+		fmt.Println("replica connection: ", s.conn)
+
 		if s.role == MASTER && len(s.cRepl) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			for _, c := range s.cRepl {
@@ -84,7 +86,7 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 	case REPLCONF:
 		s.writeData(simpleStringResponse("OK"))
-		fmt.Println("replica connection: ", &s.conn)
+		fmt.Println("replica connection: ", s.conn)
 
 	case PSYNC:
 		s.writeData(s.fullResync())
@@ -94,7 +96,7 @@ func (s Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
-		fmt.Println("replica connection: ", &s.conn)
+		fmt.Println("replica connection: ", s.conn)
 		s.cRepl = append(s.cRepl, &s.conn)
 
 	default:
