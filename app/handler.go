@@ -67,7 +67,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			for _, c := range s.cRepl {
 				fmt.Println("netConn: ", *c)
-				(*c).Write([]byte(string((s.cmd.Raw))))
+				(*c).Write([]byte(fmt.Sprintf("*3\r\n$3\r\nSET\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", 3, "foo", 3, "123")))
 			}
 		}
 	case GET:
