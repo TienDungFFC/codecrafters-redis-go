@@ -36,6 +36,7 @@ var mSet = make(map[string]Value)
 func (s Server) handler(str []byte) {
 	args, _ := readCommand(str)
 	s.cmd.Args = args
+	s.cmd.Raw = str
 	s.handlecommand(args)
 }
 
@@ -61,6 +62,9 @@ func (s Server) handlecommand(args [][]byte) {
 		}
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
+		if s.role == MASTER {
+			s.writeData(string(s.cmd.Raw))
+		}
 	case GET:
 		val, ok := mSet[string(args[1])]
 

@@ -6,6 +6,7 @@ import (
 )
 
 type Command struct {
+	Raw  []byte
 	Args [][]byte
 }
 
