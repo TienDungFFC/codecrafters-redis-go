@@ -62,7 +62,7 @@ func (s Server) handlecommand(args [][]byte) {
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
 		fmt.Println("slaveConn: ", s.cRepl)
-		if s.role == MASTER && s.cRepl != nil {
+		if s.role == MASTER && len(s.cRepl) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			for _, c := range s.cRepl {
 				(*c).Write((s.cmd.Raw))
