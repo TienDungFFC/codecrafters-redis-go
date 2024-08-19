@@ -105,11 +105,11 @@ func (s *Server) handlecommand(args [][]byte) {
 	}
 }
 
-func (s Server) handleEcho() {
+func (s *Server) handleEcho() {
 	s.writeData(simpleStringResponse(string(s.cmd.Args[1])))
 }
 
-func (s Server) writeData(str string) {
+func (s *Server) writeData(str string) {
 	_, err := s.conn.Write([]byte(str))
 	if err != nil {
 		fmt.Println("Error writing connection: ", err.Error())
@@ -127,24 +127,24 @@ func bulkStringResponse(s string) string {
 	return fmt.Sprintf("$%d\r\n%v\r\n", len(s), s)
 }
 
-func (s Server) infoReplicationResponse() string {
+func (s *Server) infoReplicationResponse() string {
 	infoResp := s.getRoleInfo() + s.getReplOffset() + s.getReplId()
 	return fmt.Sprintf("$%d%v\r\n", len(infoResp)-2, infoResp)
 }
 
-func (s Server) getRoleInfo() string {
+func (s *Server) getRoleInfo() string {
 	return fmt.Sprintf("\r\nrole:%v", s.role)
 }
 
-func (s Server) getReplId() string {
+func (s *Server) getReplId() string {
 	return fmt.Sprintf("\r\nmaster_replid:%v", s.repliId)
 }
 
-func (s Server) getReplOffset() string {
+func (s *Server) getReplOffset() string {
 	return fmt.Sprintf("\r\nmaster_repl_offset:%v", s.replOffset)
 }
 
-func (s Server) fullResync() string {
+func (s *Server) fullResync() string {
 	return fmt.Sprintf("+FULLRESYNC %s %s\r\n", s.repliId, s.replOffset)
 }
 
