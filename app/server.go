@@ -31,7 +31,7 @@ type Server struct {
 	replicaof  *string
 	cmd        Command
 	conn       net.Conn
-	cRepl      net.Conn
+	cRepl      *net.Conn
 }
 
 func init() {
