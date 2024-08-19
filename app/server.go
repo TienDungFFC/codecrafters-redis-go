@@ -28,7 +28,9 @@ type Server struct {
 	port       string
 	repliId    string
 	replOffset string
-	replicaof *string
+	replicaof  *string
+	cmd        Command
+	conn       net.Conn
 }
 
 func init() {
@@ -47,7 +49,7 @@ func NewServer() Server {
 		port:       *port,
 		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 		replOffset: "0",
-		replicaof: replicaof,
+		replicaof:  replicaof,
 	}
 }
 
@@ -67,7 +69,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
-				time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Second)
 
 		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
@@ -104,9 +106,9 @@ func main() {
 func (s Server) connectMaster(host, port string) (net.Conn, error) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%v:%v", host, port))
 	if err != nil {
-        fmt.Println("Error:", err)
-        return nil, err
-    }
+		fmt.Println("Error:", err)
+		return nil, err
+	}
 	return conn, nil
 }
 
@@ -129,13 +131,12 @@ func (s Server) handleConnection(conn net.Conn) {
 			fmt.Println("Error reading data: ", err.Error())
 			continue
 		}
-
 		res := s.handler(buf[:n])
 		// res := string(buf[:n])
-		_, err = conn.Write([]byte(res))
-		if err != nil {
-			fmt.Println("Error writing connection: ", err.Error())
-			os.Exit(1)
-		}
+		// _, err = conn.Write([]byte(res))
+		// if err != nil {
+		// 	fmt.Println("Error writing connection: ", err.Error())
+		// 	os.Exit(1)
+		// }
 	}
 }

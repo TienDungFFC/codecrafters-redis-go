@@ -13,13 +13,13 @@ const (
 )
 
 const (
-	ECHO = "echo"
-	PING = "ping"
-	SET  = "set"
-	GET  = "get"
-	INFO = "info"
+	ECHO     = "echo"
+	PING     = "ping"
+	SET      = "set"
+	GET      = "get"
+	INFO     = "info"
 	REPLCONF = "replconf"
-	PSYNC = "psync"
+	PSYNC    = "psync"
 )
 
 var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
@@ -32,19 +32,20 @@ type Value struct {
 
 var mSet = make(map[string]Value)
 
-func (s Server) handler(str []byte) string {
+func (s Server) handler(str []byte) {
 	args, _ := readCommand(str)
-	return s.handlecommand(args)
+	s.cmd.Args = args
+	s.handlecommand(args)
 }
 
-func (s Server) handlecommand(args [][]byte) string {
+func (s Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
 
 	switch cmd {
 	case ECHO:
-		return stringResponse(string(args[1]))
+		s.handleEcho()
 	case PING:
-		return stringResponse("PONG")
+		s.writeData(simpleStringResponse("PONG"))
 	case SET:
 		v := Value{
 			val: args[2],
@@ -57,30 +58,41 @@ func (s Server) handlecommand(args [][]byte) string {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
-		return stringResponse("OK")
+		s.writeData(simpleStringResponse("OK"))
 	case GET:
 		val, ok := mSet[string(args[1])]
 
 		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
-			return bulkStringResponse(strings.TrimSpace(string(val.val)))
+			s.writeData(bulkStringResponse(strings.TrimSpace(string(val.val))))
 		} else if time.Now().After(val.px) {
-			return nullBulkStringResponse()
+			s.writeData(nullBulkStringResponse())
 		} else {
-			return nullBulkStringResponse()
+			s.writeData(nullBulkStringResponse())
 		}
 	case INFO:
 		if string(args[1]) == "replication" {
-			return s.infoReplicationResponse()
+			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
-		return stringResponse("OK")
-	case PSYNC: 
-		return s.fullResync()
+		s.writeData(simpleStringResponse("OK"))
+	case PSYNC:
+		s.writeData(s.fullResync())
 	}
-	return stringResponse("unknown")
+	s.writeData(simpleStringResponse("unknown"))
 }
 
-func stringResponse(s string) string {
+func (s Server) handleEcho() {
+	s.writeData(simpleStringResponse(string(s.cmd.Args[1])))
+}
+
+func (s Server) writeData(str string) {
+	_, err := s.conn.Write([]byte(str))
+	if err != nil {
+		fmt.Println("Error writing connection: ", err.Error())
+	}
+}
+
+func simpleStringResponse(s string) string {
 	return fmt.Sprintf("+%v\r\n", s)
 }
 
