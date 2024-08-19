@@ -78,8 +78,9 @@ func (s Server) handlecommand(args [][]byte) {
 		s.writeData(simpleStringResponse("OK"))
 	case PSYNC:
 		s.writeData(s.fullResync())
+	default:
+		s.writeData(simpleStringResponse("unknown"))
 	}
-	s.writeData(simpleStringResponse("unknown"))
 }
 
 func (s Server) handleEcho() {
