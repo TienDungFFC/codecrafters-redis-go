@@ -102,7 +102,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		go mServer.handleConnection(conn)
+		go mServer.handleConnection()
 	}
 }
 
@@ -123,10 +123,10 @@ func ListenNetwork() (net.Listener, error) {
 	return l, nil
 }
 
-func (s Server) handleConnection(conn net.Conn) {
+func (s Server) handleConnection() {
 	for {
 		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
+		n, err := s.conn.Read(buf)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
