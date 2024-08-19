@@ -34,13 +34,15 @@ type Server struct {
 	cRepl      []*net.Conn
 }
 
+var slaves []*net.Conn = make([]*net.Conn, 0)
+
 func init() {
 	port = flag.String("port", "6379", "Port to connect to")
 	replicaof = flag.String("replicaof", "", "Replica of master")
 	flag.Parse()
 }
 
-func NewServer(r Role) *Server {
+func NewServer(conn net.Conn, r Role) *Server {
 
 	return &Server{
 		role:       r,
@@ -48,7 +50,7 @@ func NewServer(r Role) *Server {
 		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 		replOffset: "0",
 		replicaof:  replicaof,
-		conn:       nil,
+		conn:       conn,
 		cRepl:      make([]*net.Conn, 0),
 	}
 }
@@ -62,29 +64,29 @@ func main() {
 	if role == SLAVE {
 		rep := strings.Split(*replicaof, " ")
 		conn, err := connectMaster(rep[0], rep[1])
+		server := NewServer(conn, role)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		defer conn.Close()
-		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
+		_, err = server.conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
-		_, err = conn.Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
@@ -94,17 +96,15 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	mServer := NewServer(role)
-
 	for {
 		conn, err := l.Accept()
-		mServer.conn = conn
+		mServer := NewServer(conn, role)
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
 		}
 
-		go mServer.handleConnection(conn)
+		go mServer.handleConnection()
 	}
 }
 
@@ -125,10 +125,10 @@ func ListenNetwork() (net.Listener, error) {
 	return l, nil
 }
 
-func (s *Server) handleConnection(conn net.Conn) {
+func (s *Server) handleConnection() {
 	for {
 		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
+		n, err := s.conn.Read(buf)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break

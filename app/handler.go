@@ -63,10 +63,10 @@ func (s *Server) handlecommand(args [][]byte) {
 		s.writeData(simpleStringResponse("OK"))
 		fmt.Println("replica connection at set: ", s.cRepl)
 
-		if s.role == MASTER && len(s.cRepl) > 0 {
+		if s.role == MASTER && len(slaves) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
-			for _, c := range s.cRepl {
-				(*c).Write([]byte(fmt.Sprintf("*3\r\n$3\r\nSET\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", 3, "foo", 3, "123")))
+			for _, s := range slaves {
+				(*s).Write([]byte(fmt.Sprintf("*3\r\n$3\r\nSET\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", 3, "foo", 3, "123")))
 			}
 		}
 	case GET:
@@ -95,7 +95,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
-		s.cRepl = append(s.cRepl, &s.conn)
+		slaves = append(slaves, &s.conn)
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
