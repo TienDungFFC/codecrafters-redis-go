@@ -66,7 +66,8 @@ func (s *Server) handlecommand(args [][]byte) {
 		if s.role == MASTER && len(s.cRepl) > 0 {
 			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
 			for _, c := range s.cRepl {
-				(*c).Write((s.cmd.Raw))
+				fmt.Println("netConn: ", *c)
+				(*c).Write([]byte(string((s.cmd.Raw))))
 			}
 		}
 	case GET:
