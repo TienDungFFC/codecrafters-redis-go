@@ -87,7 +87,6 @@ func (s Server) handlecommand(args [][]byte) {
 		// s.writeData(fmt.Sprintf("$%d\r\n%s", len(emptyRDBStr), string(emptyRDBStr)))
 		// string(emptyRDBStr)))
 		// s.writeData(emptyRDBStr)
-		s.writeData("$" + strconv.Itoa(len(emptyRDBStr)) + "\r\n" + string(emptyRDBStr))
 
 	default:
 		s.writeData(simpleStringResponse("unknown"))
@@ -135,4 +134,8 @@ func (s Server) getReplOffset() string {
 
 func (s Server) fullResync() string {
 	return fmt.Sprintf("+FULLRESYNC %s %s\r\n", s.repliId, s.replOffset)
+}
+
+func EncodeFile(buf []byte) string {
+	return fmt.Sprintf("$%d\r\n%s", len(buf), string(buf))
 }
