@@ -39,71 +39,73 @@ func init() {
 	flag.Parse()
 }
 
-func NewServer() Server {
-	role := MASTER
-	if *replicaof != "" {
-		role = SLAVE
-	}
-	return Server{
-		role:       role,
+func NewServer(conn net.Conn, r Role) *Server {
+
+	return &Server{
+		role:       r,
 		port:       *port,
 		repliId:    "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 		replOffset: "0",
 		replicaof:  replicaof,
+		conn:       conn,
 	}
 }
 
 func main() {
 	fmt.Println("Logs from your program will appear here!")
-
-	server := NewServer()
-	if server.role == SLAVE {
-		rep := strings.Split(*server.replicaof, " ")
-		conn, err := server.connectMaster(rep[0], rep[1])
+	role := MASTER
+	if *replicaof != "" {
+		role = SLAVE
+	}
+	if role == SLAVE {
+		rep := strings.Split(*replicaof, " ")
+		conn, err := connectMaster(rep[0], rep[1])
+		server := NewServer(conn, role)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		defer conn.Close()
-		_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
+		defer server.conn.Close()
+		_, err = server.conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
 
-		_, err = conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 		time.Sleep(1 * time.Second)
-		_, err = conn.Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
+		_, err = server.conn.Write([]byte("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n"))
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
 	}
-	l, err := server.ListenNetwork()
+	l, err := ListenNetwork()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	for {
 		conn, err := l.Accept()
+		mServer := NewServer(conn, MASTER)
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
 		}
 
-		go server.handleConnection(conn)
+		go mServer.handleConnection(conn)
 	}
 }
 
-func (s Server) connectMaster(host, port string) (net.Conn, error) {
+func connectMaster(host, port string) (net.Conn, error) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%v:%v", host, port))
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -112,8 +114,8 @@ func (s Server) connectMaster(host, port string) (net.Conn, error) {
 	return conn, nil
 }
 
-func (s Server) ListenNetwork() (net.Listener, error) {
-	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", s.port))
+func ListenNetwork() (net.Listener, error) {
+	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", *port))
 	if err != nil {
 		return nil, err
 	}
