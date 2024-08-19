@@ -63,7 +63,8 @@ func (s Server) handlecommand(args [][]byte) {
 		mSet[string(args[1])] = v
 		s.writeData(simpleStringResponse("OK"))
 		if s.role == MASTER && s.cRepl != nil {
-			s.cRepl.Write([]byte(string(s.cmd.Raw)))
+			fmt.Println("cmdRaw: ", string(s.cmd.Raw))
+			s.cRepl.Write((s.cmd.Raw))
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
