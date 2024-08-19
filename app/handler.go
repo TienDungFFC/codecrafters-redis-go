@@ -60,7 +60,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
-
+		fmt.Println("map after set: ", mSet)
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
