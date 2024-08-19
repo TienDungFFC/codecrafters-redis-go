@@ -45,6 +45,7 @@ func (s Server) handlecommand(args [][]byte) {
 	case ECHO:
 		s.handleEcho()
 	case PING:
+		fmt.Println("go ping: ")
 		s.writeData(simpleStringResponse("PONG"))
 	case SET:
 		v := Value{
