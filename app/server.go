@@ -31,7 +31,7 @@ type Server struct {
 	replicaof  *string
 	cmd        Command
 	conn       net.Conn
-	cRepl      []*net.Conn
+	offset     int
 }
 
 var slaves []*net.Conn = make([]*net.Conn, 0)
@@ -51,7 +51,7 @@ func NewServer(conn net.Conn, r Role) *Server {
 		replOffset: "0",
 		replicaof:  replicaof,
 		conn:       conn,
-		cRepl:      make([]*net.Conn, 0),
+		offset:     0,
 	}
 }
 

@@ -42,13 +42,14 @@ func (s *Server) handler(str []byte) {
 
 func (s *Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
-	fmt.Println("cmd: ", cmd)
 	switch cmd {
 	case ECHO:
 		s.handleEcho()
 	case PING:
 		s.writeData(simpleStringResponse("PONG"))
+		s.offset += len(s.cmd.Raw)
 	case SET:
+		s.offset += len(s.cmd.Raw)
 		v := Value{
 			val: args[2],
 			px:  time.Time{},
@@ -83,7 +84,8 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case REPLCONF:
 		if len(args) > 2 && strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
-			s.writeData("*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n")
+			s.writeData(s.replConfResponse())
+			s.offset += len(s.cmd.Raw)
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
@@ -108,6 +110,12 @@ func (s *Server) handlecommand(args [][]byte) {
 
 func (s *Server) handleEcho() {
 	s.writeData(simpleStringResponse(string(s.cmd.Args[1])))
+}
+
+func (s *Server) replConfResponse() string {
+	lOfs := len([]byte(fmt.Sprintf("%b", s.offset)))
+	total := 14 + lOfs
+	return fmt.Sprintf("*%d\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n", total)
 }
 
 func (s *Server) writeData(str string) {
