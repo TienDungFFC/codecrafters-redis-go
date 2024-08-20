@@ -46,7 +46,9 @@ func (s *Server) handlecommand(args [][]byte) {
 	case ECHO:
 		s.handleEcho()
 	case PING:
-		s.writeData(simpleStringResponse("PONG"))
+		if s.role == MASTER {
+			s.writeData(simpleStringResponse("PONG"))
+		}
 		s.offset += len(s.cmd.Raw)
 	case SET:
 		s.offset += len(s.cmd.Raw)
