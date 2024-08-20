@@ -152,12 +152,12 @@ func (s *Server) handlecommand(args [][]byte) {
 				fmt.Println("increasing ackcount: ", ackCount)
 				ackCount++
 			case <-timer:
-				s.writeData(integersResponse(1))
+				s.writeData(integersResponse(ackCount))
 				return
 			}
 		}
 
-		s.writeData(integersResponse(1))
+		s.writeData(integersResponse(ackCount))
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
