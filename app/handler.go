@@ -87,8 +87,8 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
+		fmt.Println("replication config", string(args[1]))
 		if len(args) > 2 && strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
-			fmt.Println("getack: ", string(args[1]))
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[2])) == "ack" {
@@ -96,7 +96,6 @@ func (s *Server) handlecommand(args [][]byte) {
 				log.Printf("Adding to replicaAckCount")
 				s.ackChan <- true
 			}
-
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
