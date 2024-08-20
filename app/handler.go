@@ -37,12 +37,12 @@ func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
 	s.cmd.Args = args
 	s.cmd.Raw = str
+	fmt.Println("args: ", args)
 	s.handlecommand(args)
 }
 
 func (s *Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
-	fmt.Println("cmd: ", cmd)
 	switch cmd {
 	case ECHO:
 		s.handleEcho()
