@@ -123,7 +123,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
-		ackCount := 0
+		ackCount := 1
 		for ackCount < nOfRepl {
 
 			select {
