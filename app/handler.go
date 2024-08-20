@@ -142,7 +142,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			}
 		}
 
-		s.writeData(integersResponse(ackCount))
+		s.writeData(integersResponse(1))
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
