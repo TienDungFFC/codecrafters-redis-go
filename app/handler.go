@@ -110,7 +110,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		if string(args[1]) == "0" {
 			s.writeData(integersResponse(0))
 		} else {
-			s.writeData(integersResponse(0))
+			s.writeData(integersResponse(len(slaves)))
 		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
