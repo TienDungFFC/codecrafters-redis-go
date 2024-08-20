@@ -108,44 +108,44 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
 		slaves = append(slaves, &s.conn)
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 		for _, slave := range slaves {
 			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 		}
 	case WAIT:
-		// nOfRepl, _ := strconv.Atoi(string(args[1]))
-		// duration, _ := strconv.Atoi(string(args[2]))
+		nOfRepl, _ := strconv.Atoi(string(args[1]))
+		duration, _ := strconv.Atoi(string(args[2]))
 
 		if len(mSet) == 0 {
 			s.writeData(integersResponse(len(slaves)))
 			return
 		}
-		s.writeData(integersResponse(1))
-		// for _, slave := range slaves {
-		// 	fmt.Println("len of slaves: ", s.offset)
-		// 	if s.offset > 0 {
-		// 		fmt.Println()
-		// 		go func() {
-		// 			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-		// 		}()
-		// 	}
-		// }
-		// timer := time.After(time.Duration(duration) * time.Millisecond)
-		// ackCount := 0
 
-		// for ackCount < nOfRepl {
+		for _, slave := range slaves {
+			fmt.Println("len of slaves: ", s.offset)
+			if s.offset > 0 {
+				fmt.Println()
+				go func() {
+					(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+				}()
+			}
+		}
+		timer := time.After(time.Duration(duration) * time.Millisecond)
+		ackCount := 0
 
-		// 	select {
-		// 	case <-ackChan:
-		// 		fmt.Println("increasing ackcount: ", ackCount)
-		// 		ackCount++
-		// 	case <-timer:
-		// 		s.writeData(integersResponse(ackCount))
-		// 		return
-		// 	}
-		// }
+		for ackCount < nOfRepl {
 
-		// s.writeData(integersResponse(ackCount))
+			select {
+			case <-ackChan:
+				fmt.Println("increasing ackcount: ", ackCount)
+				ackCount++
+			case <-timer:
+				s.writeData(integersResponse(ackCount))
+				return
+			}
+		}
+
+		s.writeData(integersResponse(ackCount))
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
