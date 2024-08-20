@@ -130,6 +130,9 @@ func ListenNetwork() (net.Listener, error) {
 }
 
 func (s *Server) handleConnection() {
+	defer func() {
+		s.conn = nil
+	}()
 	for {
 		buf := make([]byte, 1024)
 		n, err := s.conn.Read(buf)
