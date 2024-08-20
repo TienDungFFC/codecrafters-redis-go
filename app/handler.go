@@ -37,7 +37,7 @@ func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
 	s.cmd.Args = args
 	s.cmd.Raw = str
-	fmt.Println("args: ", args)
+	fmt.Println("args: ", str)
 	s.handlecommand(args)
 }
 
