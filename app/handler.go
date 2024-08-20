@@ -136,7 +136,7 @@ func (s *Server) handlecommand(args [][]byte) {
 				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
 		}
-
+		time.Sleep(1 * time.Second)
 		timer := time.After(time.Duration(duration) * time.Millisecond)
 		ackCount := 0
 
