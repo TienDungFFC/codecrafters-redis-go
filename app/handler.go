@@ -123,7 +123,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			go func() {
 				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(600 * time.Millisecond)
 		}
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
