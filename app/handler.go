@@ -141,8 +141,6 @@ func (s *Server) handlecommand(args [][]byte) {
 		ackCount := 0
 
 		for ackCount < nOfRepl {
-			fmt.Println("ackCount: ", duration)
-			fmt.Println("timer: ", timer)
 
 			select {
 			case <-ackChan:
