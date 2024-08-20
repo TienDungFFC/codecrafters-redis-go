@@ -55,6 +55,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 		s.offset += len(s.cmd.Raw)
 	case SET:
+		lock.Lock()
 		s.offset += len(s.cmd.Raw)
 		v := Value{
 			val: args[2],
@@ -67,6 +68,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
+		lock.Unlock()
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
