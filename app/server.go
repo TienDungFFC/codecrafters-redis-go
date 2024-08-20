@@ -144,7 +144,9 @@ func (s *Server) handleConnection() {
 			}
 		}
 		fmt.Println("string buffer: ", string(buf))
+		lock.Lock()
 		s.handler(buf[:n])
+		lock.Unlock()
 		// res := string(buf[:n])
 		// _, err = conn.Write([]byte(res))
 		// if err != nil {
