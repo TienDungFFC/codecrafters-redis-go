@@ -71,7 +71,6 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
-		fmt.Println("map: ", mSet)
 		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
 			s.writeData(bulkStringResponse(strings.TrimSpace(string(val.val))))
 		} else if time.Now().After(val.px) {
