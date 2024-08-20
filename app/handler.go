@@ -114,7 +114,7 @@ func (s *Server) handleEcho() {
 
 func (s *Server) replConfResponse() string {
 	lOfs := len([]byte(fmt.Sprintf("%b", s.offset)))
-	return fmt.Sprintf("*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n%d\r\n", lOfs)
+	return fmt.Sprintf("*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$%d\r\n$%d\r\n", lOfs, s.offset)
 }
 
 func (s *Server) writeData(str string) {
