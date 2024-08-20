@@ -64,7 +64,9 @@ func main() {
 	}
 	if role == SLAVE {
 		rep := strings.Split(*replicaof, " ")
+		lock.Lock()
 		conn, err := connectMaster(rep[0], rep[1])
+		lock.Unlock()
 		server := NewServer(conn, role)
 		if err != nil {
 			fmt.Println(err)
