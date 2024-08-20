@@ -77,6 +77,7 @@ func (s *Server) handlecommand(args [][]byte) {
 
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
+				time.Sleep(200 * time.Millisecond)
 			}
 			lock.Unlock()
 		}
