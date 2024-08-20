@@ -88,6 +88,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case REPLCONF:
 		if len(args) > 2 && strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
+			fmt.Println("getack: ", string(args[1]))
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[2])) == "ack" {
@@ -118,7 +119,6 @@ func (s *Server) handlecommand(args [][]byte) {
 		duration, _ := strconv.Atoi(string(args[2]))
 		for _, slave := range slaves {
 			go func() {
-				fmt.Println("wailting for slave: ")
 				(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
 		}
