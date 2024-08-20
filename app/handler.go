@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -89,6 +90,12 @@ func (s *Server) handlecommand(args [][]byte) {
 		if len(args) > 2 && strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
+		} else if strings.ToLower(string(args[2])) == "ack" {
+			if s.role == MASTER {
+				log.Printf("Adding to replicaAckCount")
+				s.ackChan <- true
+			}
+
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
@@ -107,11 +114,34 @@ func (s *Server) handlecommand(args [][]byte) {
 			(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\ngetack\r\n$1\r\n*\r\n"))
 		}
 	case WAIT:
-		if string(args[1]) == "0" {
-			s.writeData(integersResponse(0))
-		} else {
-			s.writeData(integersResponse(len(slaves)))
+		nOfRepl, _ := strconv.Atoi(string(args[1]))
+		duration, _ := strconv.Atoi(string(args[2]))
+		for _, slave := range slaves {
+			go func() {
+				(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\ngetack\r\n$1\r\n*\r\n"))
+			}()
 		}
+
+		timer := time.After(time.Duration(duration) * time.Millisecond)
+		ackCount := 0
+		for ackCount < nOfRepl {
+
+			select {
+			case <-s.ackChan:
+				ackCount++
+			case <-timer:
+				s.writeData(integersResponse(ackCount))
+				return
+			}
+		}
+
+		s.writeData(integersResponse(ackCount))
+
+		// if string(args[1]) == "0" {
+		// 	s.writeData(integersResponse(0))
+		// } else {
+		// 	s.writeData(integersResponse(len(slaves)))
+		// }
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}

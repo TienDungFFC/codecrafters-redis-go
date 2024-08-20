@@ -32,6 +32,7 @@ type Server struct {
 	cmd        Command
 	conn       net.Conn
 	offset     int
+	ackChan    chan bool
 }
 
 var slaves []*net.Conn = make([]*net.Conn, 0)
