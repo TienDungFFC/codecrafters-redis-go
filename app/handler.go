@@ -73,9 +73,12 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(simpleStringResponse("OK"))
 		}
 		if s.role == MASTER && len(slaves) > 0 {
+			lock.Lock()
+
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
 			}
+			lock.Unlock()
 		}
 	case GET:
 		val, ok := mSet[string(args[1])]
