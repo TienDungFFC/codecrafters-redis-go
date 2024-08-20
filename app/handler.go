@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -30,6 +31,7 @@ type Value struct {
 }
 
 var mSet = make(map[string]Value)
+var lock sync.Mutex
 
 func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
@@ -118,13 +120,14 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(integersResponse(len(slaves)))
 			return
 		}
-
+		lock.Lock()
 		for _, slave := range slaves {
 			go func() {
 				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
 			time.Sleep(400 * time.Millisecond)
 		}
+		lock.Unlock()
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
 		ackCount := 0
