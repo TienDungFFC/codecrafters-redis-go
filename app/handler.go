@@ -45,7 +45,6 @@ func (s *Server) handler(str []byte) {
 
 func (s *Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
-	fmt.Println("handlecommand: ", string(args[0]))
 	switch cmd {
 	case ECHO:
 		s.handleEcho()
@@ -100,7 +99,6 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[1])) == "ack" {
-			fmt.Println("inside ack:", string(args[1]))
 			ackChan <- true
 		} else {
 			s.writeData(simpleStringResponse("OK"))
@@ -132,11 +130,13 @@ func (s *Server) handlecommand(args [][]byte) {
 			return
 		}
 		for _, slave := range slaves {
-			go func() {
-				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-			}()
+			if s.offset > 0 {
+
+				go func() {
+					(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+				}()
+			}
 		}
-		time.Sleep(1 * time.Second)
 		timer := time.After(time.Duration(duration) * time.Millisecond)
 		ackCount := 0
 
