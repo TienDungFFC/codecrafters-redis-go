@@ -119,8 +119,10 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
-		ackCount := 1
+		ackCount := 0
 		for ackCount < nOfRepl {
+			fmt.Println("ackCount: ", ackCount)
+			fmt.Println("timer: ", timer)
 
 			select {
 			case <-s.ackChan:
