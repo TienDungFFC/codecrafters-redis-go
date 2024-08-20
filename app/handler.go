@@ -108,7 +108,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
 		slaves = append(slaves, &s.conn)
-		time.Sleep(1 * time.Second)
+		time.Sleep(200 * time.Millisecond)
 		for _, slave := range slaves {
 			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 		}
