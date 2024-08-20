@@ -38,6 +38,9 @@ func (s *Server) handler(str []byte) {
 	s.cmd.Args = args
 	s.cmd.Raw = str
 	fmt.Println("args: ", string(str))
+	if len(args) == 0 {
+		return
+	}
 	s.handlecommand(args)
 }
 

@@ -34,6 +34,8 @@ func readCommand(cmd []byte) ([][]byte, error) {
 			}
 		}
 		return args, nil
+	} else if cmd[0] == '+' {
+		return nil, nil
 	}
 	return [][]byte{}, nil
 }
