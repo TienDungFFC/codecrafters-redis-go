@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -87,15 +86,11 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
-		fmt.Println("replication config", string(args[1]))
 		if len(args) > 2 && strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[2])) == "ack" {
-			if s.role == MASTER {
-				log.Printf("Adding to replicaAckCount")
-				s.ackChan <- true
-			}
+			s.ackChan <- true
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
