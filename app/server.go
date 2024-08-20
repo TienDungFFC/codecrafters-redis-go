@@ -143,6 +143,7 @@ func (s *Server) handleConnection() {
 				os.Exit(1)
 			}
 		}
+		fmt.Println("string buffer: ", string(buf))
 		s.handler(buf[:n])
 		// res := string(buf[:n])
 		// _, err = conn.Write([]byte(res))
