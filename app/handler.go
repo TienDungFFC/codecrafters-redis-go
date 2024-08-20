@@ -108,7 +108,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		slaves = append(slaves, &s.conn)
 		time.Sleep(1 * time.Second)
 		for _, slave := range slaves {
-			(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 		}
 	case WAIT:
 		nOfRepl, _ := strconv.Atoi(string(args[1]))
