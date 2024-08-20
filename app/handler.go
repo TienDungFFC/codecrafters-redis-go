@@ -118,11 +118,11 @@ func (s *Server) handlecommand(args [][]byte) {
 			return
 		}
 
-		for _, slave := range slaves {
-			go func() {
-				(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-			}()
-		}
+		// for _, slave := range slaves {
+		// 	go func() {
+		// 		(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+		// 	}()
+		// }
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
 		ackCount := 0
