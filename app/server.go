@@ -94,6 +94,12 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	defer func(l net.Listener) {
+		err := l.Close()
+		if err != nil {
+			fmt.Println("Error closing listener: ", err.Error())
+		}
+	}(l)
 	for {
 		conn, err := l.Accept()
 		mServer := NewServer(conn, role)
