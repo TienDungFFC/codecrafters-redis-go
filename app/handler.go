@@ -21,6 +21,7 @@ const (
 	INFO     = "info"
 	REPLCONF = "replconf"
 	PSYNC    = "psync"
+	WAIT     = "wait"
 )
 
 type Value struct {
@@ -105,6 +106,12 @@ func (s *Server) handlecommand(args [][]byte) {
 		for _, slave := range slaves {
 			(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\ngetack\r\n$1\r\n*\r\n"))
 		}
+	case WAIT:
+		if string(args[1]) == "0" {
+			s.writeData(integersResponse(0))
+		} else {
+			s.writeData(integersResponse(0))
+		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
@@ -131,6 +138,10 @@ func (s *Server) writeData(str string) {
 
 func simpleStringResponse(s string) string {
 	return fmt.Sprintf("+%v\r\n", s)
+}
+
+func integersResponse(i int) string {
+	return fmt.Sprintf(":%d\r\n", i)
 }
 
 func nullBulkStringResponse() string {
