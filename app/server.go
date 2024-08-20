@@ -93,10 +93,6 @@ func main() {
 		if err != nil {
 			fmt.Println("Sending PING error")
 		}
-		buff := make([]byte, 1024)
-		n, _ := conn.Read(buff)
-		response := string(buff[:n])
-		fmt.Println("string response: ", response)
 		go server.handleConnection()
 	}
 	l, err := ListenNetwork()
