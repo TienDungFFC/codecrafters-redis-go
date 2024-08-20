@@ -130,8 +130,8 @@ func (s *Server) handlecommand(args [][]byte) {
 			return
 		}
 
-		fmt.Println("len of slaves: ", len(slaves))
 		for _, slave := range slaves {
+			fmt.Println("len of slaves: ", s.offset)
 			if s.offset > 0 {
 				fmt.Println()
 				go func() {
