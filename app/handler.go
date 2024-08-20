@@ -84,7 +84,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
-		if string(args[1]) == "getack" && string(args[2]) == "*" {
+		if strings.ToLower(string(args[1])) == "getack" && string(args[2]) == "*" {
 			s.writeData("*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n")
 		} else {
 			s.writeData(simpleStringResponse("OK"))
