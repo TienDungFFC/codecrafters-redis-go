@@ -23,9 +23,6 @@ const (
 	PSYNC    = "psync"
 )
 
-var infoRepl = []string{"role", "connected_slaves", "master_replid", "master_repl_offset", "second_repl_offset", "repl_backlog_active", "repl_backlog_size",
-	"repl_backlog_first_byte_offset", "repl_backlog_histlen"}
-
 type Value struct {
 	val []byte
 	px  time.Time
@@ -87,8 +84,11 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
-		s.writeData(simpleStringResponse("OK"))
-		fmt.Println("append scon: ", s.conn)
+		if string(args[1]) == "getack" && string(args[2]) == "*" {
+			s.writeData("*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n")
+		} else {
+			s.writeData(simpleStringResponse("OK"))
+		}
 
 	case PSYNC:
 		s.writeData(s.fullResync())
@@ -99,7 +99,9 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
 		slaves = append(slaves, &s.conn)
-
+		for _, slave := range slaves {
+			(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\ngetack\r\n$1\r\n*\r\n"))
+		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
