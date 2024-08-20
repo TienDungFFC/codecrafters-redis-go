@@ -34,7 +34,6 @@ func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
 	s.cmd.Args = args
 	s.cmd.Raw = str
-	fmt.Println("args: ", string(str))
 	if len(args) == 0 {
 		return
 	}
@@ -60,7 +59,6 @@ func (s *Server) handlecommand(args [][]byte) {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
-		fmt.Println("map after set: ", mSet)
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
@@ -70,6 +68,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			}
 		}
 	case GET:
+		fmt.Println("set after get: ", mSet)
 		val, ok := mSet[string(args[1])]
 		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
 			s.writeData(bulkStringResponse(strings.TrimSpace(string(val.val))))

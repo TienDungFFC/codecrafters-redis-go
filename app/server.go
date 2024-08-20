@@ -93,7 +93,7 @@ func main() {
 		buff := make([]byte, 1024)
 		n, _ := conn.Read(buff)
 		response := string(buff[:n])
-		fmt.Println("received4", response)
+		fmt.Println("string response: ", response)
 		go server.handleConnection()
 	}
 	l, err := ListenNetwork()
@@ -134,7 +134,6 @@ func (s *Server) handleConnection() {
 	for {
 		buf := make([]byte, 1024)
 		n, err := s.conn.Read(buf)
-		fmt.Println("buffer: ", string(buf))
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
@@ -143,7 +142,6 @@ func (s *Server) handleConnection() {
 				os.Exit(1)
 			}
 		}
-		fmt.Println("string: ", string(buf[:n]))
 		s.handler(buf[:n])
 		// res := string(buf[:n])
 		// _, err = conn.Write([]byte(res))
