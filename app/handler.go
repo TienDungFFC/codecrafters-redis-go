@@ -68,19 +68,18 @@ func (s *Server) handlecommand(args [][]byte) {
 			v.px = ex
 		}
 		mSet[string(args[1])] = v
-		lock.Unlock()
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
 		if s.role == MASTER && len(slaves) > 0 {
-			lock.Lock()
 
 			for _, slave := range slaves {
 				(*slave).Write(s.cmd.Raw)
 				time.Sleep(200 * time.Millisecond)
 			}
-			lock.Unlock()
 		}
+		lock.Unlock()
+
 	case GET:
 		val, ok := mSet[string(args[1])]
 		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
