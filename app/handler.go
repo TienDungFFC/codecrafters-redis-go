@@ -131,7 +131,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		ackCount := 0
 
 		for ackCount < nOfRepl {
-			fmt.Println("ackCount: ", ackCount)
+			fmt.Println("ackCount: ", nOfRepl)
 			fmt.Println("timer: ", timer)
 
 			select {
