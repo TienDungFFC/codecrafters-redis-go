@@ -118,6 +118,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		duration, _ := strconv.Atoi(string(args[2]))
 		for _, slave := range slaves {
 			go func() {
+				fmt.Println("wailting for slave: ")
 				(*slave).Write([]byte("*3\r\n$8\r\nreplconf\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
 		}
