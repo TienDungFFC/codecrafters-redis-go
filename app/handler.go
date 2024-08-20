@@ -107,6 +107,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		lock.Unlock()
 
 	case PSYNC:
+		lock.Lock()
 		s.writeData(s.fullResync())
 		emptyRDBStr := "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2"
 		emptyRDBByte, err := hex.DecodeString(emptyRDBStr)
@@ -114,10 +115,12 @@ func (s *Server) handlecommand(args [][]byte) {
 			fmt.Println("Error decoding", err)
 		}
 		s.writeData(EncodeFile(emptyRDBByte))
+		lock.Unlock()
 		slaves = append(slaves, &s.conn)
 		time.Sleep(1 * time.Second)
 		for _, slave := range slaves {
 			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+			time.Sleep(200 * time.Millisecond)
 		}
 	case WAIT:
 		nOfRepl, _ := strconv.Atoi(string(args[1]))
