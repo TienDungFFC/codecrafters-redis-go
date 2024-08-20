@@ -131,14 +131,11 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(integersResponse(len(slaves)))
 			return
 		}
-		lock.Lock()
 		for _, slave := range slaves {
 			go func() {
 				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 			}()
-			time.Sleep(200 * time.Millisecond)
 		}
-		lock.Unlock()
 
 		timer := time.After(time.Duration(duration) * time.Millisecond)
 		ackCount := 0
