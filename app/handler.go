@@ -101,7 +101,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[1])) == "ack" {
 			fmt.Println("inside ack:", string(args[1]))
-			s.ackChan <- true
+			ackChan <- true
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
@@ -145,7 +145,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			fmt.Println("timer: ", timer)
 
 			select {
-			case <-s.ackChan:
+			case <-ackChan:
 				fmt.Println("increasing ackcount: ", ackCount)
 				ackCount++
 			case <-timer:

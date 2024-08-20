@@ -32,10 +32,10 @@ type Server struct {
 	cmd        Command
 	conn       net.Conn
 	offset     int
-	ackChan    chan bool
 }
 
 var slaves []*net.Conn = make([]*net.Conn, 0)
+var ackChan chan bool
 
 func init() {
 	port = flag.String("port", "6379", "Port to connect to")
