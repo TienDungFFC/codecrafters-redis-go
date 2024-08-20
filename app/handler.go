@@ -42,7 +42,7 @@ func (s *Server) handler(str []byte) {
 
 func (s *Server) handlecommand(args [][]byte) {
 	cmd := strings.ToLower(string(args[0]))
-
+	fmt.Println("cmd: ", cmd)
 	switch cmd {
 	case ECHO:
 		s.handleEcho()
