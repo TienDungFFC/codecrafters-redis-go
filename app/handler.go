@@ -87,7 +87,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
-		if strings.ToLower(string(args[1])) == "getack" {
+		if strings.ToLower(string(args[1])) == "getack1" {
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[2])) == "ack" {
