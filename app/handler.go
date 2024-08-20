@@ -128,6 +128,7 @@ func (s *Server) handlecommand(args [][]byte) {
 
 			select {
 			case <-s.ackChan:
+				fmt.Println("increasing ackcount: ", ackCount)
 				ackCount++
 			case <-timer:
 				s.writeData(integersResponse(ackCount))
@@ -136,12 +137,6 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 
 		s.writeData(integersResponse(ackCount))
-
-		// if string(args[1]) == "0" {
-		// 	s.writeData(integersResponse(0))
-		// } else {
-		// 	s.writeData(integersResponse(len(slaves)))
-		// }
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
