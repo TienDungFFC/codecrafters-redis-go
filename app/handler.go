@@ -94,6 +94,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
+		lock.Lock()
 		if strings.ToLower(string(args[1])) == "getack" {
 			fmt.Println("get ack:", string(args[1]))
 			s.writeData(s.replConfResponse())
@@ -103,6 +104,7 @@ func (s *Server) handlecommand(args [][]byte) {
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
+		lock.Unlock()
 
 	case PSYNC:
 		s.writeData(s.fullResync())
