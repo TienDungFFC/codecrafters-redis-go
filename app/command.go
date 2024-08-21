@@ -120,6 +120,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			conn.Write([]byte(fmt.Sprintf("*2\r\n$10\r\ndbfilename\r\n$%d\r\n%s\r\n", len(_metaInfo.dbFileName), _metaInfo.dbFileName)))
 		}
 	case "incr":
+		lock.Lock()
 		v, ok := handleGet(strs[1])
 		isNumeric := true
 		iV, err := strconv.Atoi(v)
@@ -142,6 +143,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			}
 			h.Write(h.IntegerResponse(1))
 		}
+		lock.Unlock()
 	case "multi":
 		h.startTransaction = true
 		h.Write(h.SimpleStringResponse("OK"))
