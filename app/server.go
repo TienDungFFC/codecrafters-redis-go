@@ -5,6 +5,15 @@ import (
 	"net"
 )
 
+type Handler struct {
+	conn net.Conn
+}
+
+func NewHandler(c net.Conn) *Handler {
+	return &Handler{
+		conn: c,
+	}
+}
 func main() {
 	initMeta()
 
@@ -33,7 +42,9 @@ func main() {
 			continue
 		}
 
+		h := NewHandler(conn)
+
 		// Handle client connection
-		go handleClient(conn)
+		go h.handleClient()
 	}
 }

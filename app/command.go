@@ -20,7 +20,8 @@ var (
 	ackReceived = make(chan bool)
 )
 
-func handleCommand(conn net.Conn, rawStr string) {
+func (h *Handler) handleCommand(rawStr string) {
+	conn := h.conn
 	rawBuf := []byte(rawStr)
 	strs, err := parseString(rawStr)
 	if err != nil {
@@ -103,9 +104,9 @@ func handleCommand(conn net.Conn, rawStr string) {
 		iV++
 		if ok {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
-			integerResponse(iV)
+			h.Write(h.IntegerResponse(iV))
 		}
-		integerResponse(1)
+		h.Write("1")
 	}
 	if !_metaInfo.isMaster() && shouldUpdateByte {
 		_metaInfo.processedBytes.Add(int32(byteLen))
@@ -202,6 +203,9 @@ func handleWait(conn net.Conn, replicaStr, waitMSStr string) {
 	return
 }
 
-func integerResponse(i int) string {
+func (h *Handler) Write(s string) {
+	h.conn.Write([]byte(s))
+}
+func (h *Handler) IntegerResponse(i int) string {
 	return fmt.Sprintf(":%d\r\n", i)
 }

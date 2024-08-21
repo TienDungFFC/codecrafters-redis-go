@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"regexp"
 	"strconv"
 )
 
-func handleClient(conn net.Conn) {
+func (h *Handler) handleClient() {
 	for {
+		conn := h.conn
 		// Read data
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
@@ -25,7 +25,7 @@ func handleClient(conn net.Conn) {
 
 		for _, command := range commands {
 			fmt.Printf("parsed command %q\n", strconv.Quote(command))
-			handleCommand(conn, command)
+			h.handleCommand(command)
 		}
 	}
 }
