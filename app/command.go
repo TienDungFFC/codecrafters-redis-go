@@ -144,7 +144,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				return ""
 			}
 			h.isExecute = true
-
+			fmt.Println("is executing: ", h.queueTrans)
 			cElement := 0
 			res := []string{}
 			for _, c := range h.queueTrans {
