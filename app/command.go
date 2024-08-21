@@ -74,6 +74,9 @@ func (h *Handler) handleCommand(rawStr string) string {
 		resp, ok := handleGet(strs[1])
 		if ok {
 			reply = resp
+			if (h.isExecute) {
+				return fmt.Sprintf("$%d\r\n%s\r\n", len(reply), reply)
+			}
 			conn.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(reply), reply)))
 		} else {
 			reply = "-1"
