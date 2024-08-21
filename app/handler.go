@@ -144,7 +144,6 @@ func (s *Server) handleWait() {
 	}
 
 	for _, slave := range slaves {
-		fmt.Println("len of slaves: ", s.offset)
 		if s.offset > 0 {
 			fmt.Println()
 			go func() {
@@ -162,12 +161,12 @@ func (s *Server) handleWait() {
 			fmt.Println("increasing ackcount: ", ackCount)
 			ackCount++
 		case <-timer:
-			s.writeData(integersResponse(1))
+			s.writeData(integersResponse(ackCount))
 			return
 		}
 	}
 
-	s.writeData(integersResponse(1))
+	s.writeData(integersResponse(ackCount))
 }
 
 func (s *Server) handleEcho() {
