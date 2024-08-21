@@ -99,16 +99,17 @@ func (h *Handler) handleCommand(rawStr string) {
 		}
 	case "incr":
 		v, ok := handleGet(strs[1])
+		isNumeric := true
 		iV, err := strconv.Atoi(v)
 		if err != nil {
-			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
-			return
+			isNumeric = false
 		}
-		fmt.Println("go to incr: ", v)
 		iV++
-		if ok {
+		if ok && isNumeric {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
 			h.Write(h.IntegerResponse(iV))
+		} else if ok && !isNumeric {
+			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
 		} else {
 			handleSet([]string{strs[1], "1"})
 			h.Write(h.IntegerResponse(1))
