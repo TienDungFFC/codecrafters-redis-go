@@ -43,6 +43,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 	if h.startTransaction && command != "exec" {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
 		h.Write(h.QueuedResponse())
+		fmt.Println("command when start transaction: ", command)
 		return ""
 	}
 	switch command {
