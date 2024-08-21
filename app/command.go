@@ -25,13 +25,13 @@ var (
 	ackReceived = make(chan bool)
 )
 
-func (h *Handler) handleCommand(rawStr string) {
+func (h *Handler) handleCommand(rawStr string) string {
 	conn := h.conn
 	rawBuf := []byte(rawStr)
 	strs, err := parseString(rawStr)
 	if err != nil {
 		fmt.Printf("failed to read data %+v\n", err)
-		return
+		return ""
 	}
 	fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
 
@@ -43,7 +43,7 @@ func (h *Handler) handleCommand(rawStr string) {
 	if h.startTransaction && command != "exec" {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
 		h.Write(h.QueuedResponse())
-		return
+		return ""
 	}
 	switch command {
 	case "ping":
@@ -59,10 +59,13 @@ func (h *Handler) handleCommand(rawStr string) {
 		handleSet(strs[1:])
 		now := time.Now()
 		if _metaInfo.isMaster() {
-			reply = "OK"
+			handleBroadcast(rawBuf, now.UnixMilli())
+			reply = "OK" 
+			if (h.isExecute) {
+				return fmt.Sprintf("+%s\r\n", reply)
+			}
 			conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
 
-			handleBroadcast(rawBuf, now.UnixMilli())
 		}
 		shouldUpdateByte = true
 		_metaInfo.startSet.Store(true)
@@ -115,11 +118,17 @@ func (h *Handler) handleCommand(rawStr string) {
 		if ok && isNumeric {
 			iV++
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
+			if (h.isExecute) {
+				return h.IntegerResponse(iV)
+			}
 			h.Write(h.IntegerResponse(iV))
 		} else if ok && !isNumeric {
 			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
 		} else {
 			handleSet([]string{strs[1], "1"})
+			if (h.isExecute) {
+				return h.IntegerResponse(iV)
+			}
 			h.Write(h.IntegerResponse(1))
 		}
 	case "multi":
@@ -128,17 +137,25 @@ func (h *Handler) handleCommand(rawStr string) {
 	case "exec": 
 		if !h.startTransaction {
 			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
-			return
+			return ""
 		} else {
 			if len(h.queueTrans) == 0 {
 				h.Write(h.EmptyArrayResponse())
-				return
+				return ""
 			}
 			h.isExecute = true
+
+			cElement := 0
+			res := []string{}
 			for _, c := range h.queueTrans {
 				h.handleCommand(c.Raw)
+				cElement++
+				res = append(res, h.handleCommand(c.Raw))
 			}
+
+			h.isExecute = false
 			h.startTransaction = false
+			h.Write(h.ArrayResponse(res))
 		}
 	}
 
@@ -146,6 +163,7 @@ func (h *Handler) handleCommand(rawStr string) {
 		fmt.Println("byteLen: ", byteLen)
 		_metaInfo.processedBytes.Add(int32(byteLen))
 	}
+	return "success"
 }
 
 func handleSet(strs []string) {
@@ -259,4 +277,12 @@ func (h *Handler) EmptyArrayResponse() string {
 
 func (h *Handler) QueuedResponse() string {
 	return "+QUEUED\r\n"
+}
+
+func (h *Handler) ArrayResponse(responses []string) string {
+	resArr := fmt.Sprintf("*%d\r\n", len(responses))
+	for _, s := range responses {
+		resArr += s
+	}
+	return resArr
 }
