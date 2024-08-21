@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 )
 
 type Handler struct {
@@ -31,7 +32,13 @@ func main() {
 	fmt.Println(fmt.Sprintf("Server is listening on port %d", port))
 
 	if !_metaInfo.isMaster() {
-		handshake()
+		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", _metaInfo.masterHost, _metaInfo.masterPort))
+		if err != nil {
+			fmt.Printf("failed to dial master")
+			os.Exit(-1)
+		}
+		cHandler := NewHandler(conn)
+		cHandler.handshake()
 	}
 
 	for {

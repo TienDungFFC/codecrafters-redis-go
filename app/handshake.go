@@ -2,21 +2,15 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"time"
 )
 
-func handshake() {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", _metaInfo.masterHost, _metaInfo.masterPort))
-	if err != nil {
-		fmt.Printf("failed to dial master")
-		os.Exit(-1)
-	}
-
+func (h *Handler) handshake() {
+	conn := h.conn
 	// send PING
-	_, err = conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
+	_, err := conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 	if err != nil {
 		fmt.Printf("failed to send ping")
 		os.Exit(-1)
@@ -44,5 +38,5 @@ func handshake() {
 		fmt.Printf("failed to send second REPLCONF")
 		os.Exit(-1)
 	}
-	go handleClient(conn)
+	go h.handleClient()
 }
