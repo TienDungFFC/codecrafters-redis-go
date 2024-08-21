@@ -106,6 +106,7 @@ func (h *Handler) handleCommand(rawStr string) {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
 			h.Write(h.IntegerResponse(iV))
 		} else {
+			handleSet([]string{strs[1], "1"})
 			h.Write("1")
 		}
 	}
