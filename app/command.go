@@ -105,8 +105,9 @@ func (h *Handler) handleCommand(rawStr string) {
 		if ok {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
 			h.Write(h.IntegerResponse(iV))
+		} else {
+			h.Write("1")
 		}
-		h.Write("1")
 	}
 	if !_metaInfo.isMaster() && shouldUpdateByte {
 		_metaInfo.processedBytes.Add(int32(byteLen))
