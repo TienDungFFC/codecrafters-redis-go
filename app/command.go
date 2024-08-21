@@ -132,6 +132,7 @@ func (h *Handler) handleCommand(cmd Command) {
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
+		fmt.Println("byteLen: ", byteLen)
 		_metaInfo.processedBytes.Add(int32(byteLen))
 	}
 }
