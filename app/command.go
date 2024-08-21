@@ -124,10 +124,16 @@ func (h *Handler) handleCommand(rawStr string) {
 		if !h.startTransaction {
 			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
 			return
-		}
-		h.isExecute = true
-		for _, c := range h.queueTrans {
-			h.handleCommand(c.Raw)
+		} else {
+			h.startTransaction = false
+			if len(h.queueTrans) == 0 {
+				h.Write(h.EmptyArrayResponse())
+				return
+			}
+			h.isExecute = true
+			for _, c := range h.queueTrans {
+				h.handleCommand(c.Raw)
+			}
 		}
 	}
 
@@ -240,4 +246,8 @@ func (h *Handler) SimpleErrorResponse(err string) string {
 
 func (h *Handler) SimpleStringResponse(s string) string {
 	return fmt.Sprintf("+%s\r\n", s)
+}
+
+func (h *Handler) EmptyArrayResponse() string {
+	return "*0\r\n"
 }
