@@ -40,6 +40,11 @@ func (h *Handler) handleCommand(rawStr string) {
 
 	var reply string
 	var shouldUpdateByte bool
+	if h.startTransaction && !h.isExecute {
+		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
+		h.Write(h.QueuedResponse())
+		return
+	}
 	switch command {
 	case "ping":
 		if _metaInfo.isMaster() {
@@ -250,4 +255,8 @@ func (h *Handler) SimpleStringResponse(s string) string {
 
 func (h *Handler) EmptyArrayResponse() string {
 	return "*0\r\n"
+}
+
+func (h *Handler) QueuedResponse() string {
+	return "+QUEUED\r\n"
 }
