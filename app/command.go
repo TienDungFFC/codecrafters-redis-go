@@ -141,7 +141,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		} else {
 			handleSet([]string{strs[1], "1"})
 			if (h.isExecute) {
-				return h.IntegerResponse(iV)
+				return h.IntegerResponse(1)
 			}
 			h.Write(h.IntegerResponse(1))
 		}
