@@ -34,7 +34,13 @@ func (h *Handler) handleCommand(rawStr string) string {
 		fmt.Printf("failed to read data %+v\n", err)
 		return ""
 	}
-	fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
+	if h.isExecute {
+		fmt.Printf("is executing in localhost:%d got %q\n", _metaInfo.port, strs)
+
+	} else {
+
+		fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
+	}
 
 	command := strings.ToLower(strs[0])
 	byteLen := len(rawBuf)
