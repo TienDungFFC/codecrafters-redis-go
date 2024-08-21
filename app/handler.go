@@ -90,13 +90,13 @@ func (s *Server) handlecommand(args [][]byte) {
 			s.writeData(s.infoReplicationResponse())
 		}
 	case REPLCONF:
+		ackChan <- true
+
 		if strings.ToLower(string(args[1])) == "getack" {
-			fmt.Println("get ack:", string(args[1]))
 			s.writeData(s.replConfResponse())
 			s.offset += len(s.cmd.Raw)
 		} else if strings.ToLower(string(args[1])) == "ack" {
 			fmt.Println("ack")
-			ackChan <- true
 		} else {
 			s.writeData(simpleStringResponse("OK"))
 		}
