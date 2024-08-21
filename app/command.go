@@ -15,17 +15,22 @@ type store struct {
 	expireAt time.Time
 }
 
+type Command struct {
+	Raw string
+	Args []string
+}
+
 var _map sync.Map
 var (
 	ackReceived = make(chan bool)
 )
 
-func (h *Handler) handleCommand(rawStr string) {
+func (h *Handler) handleCommand(cmd Command) {
 	conn := h.conn
-	rawBuf := []byte(rawStr)
-	strs, err := parseString(rawStr)
-	if err != nil {
-		fmt.Printf("failed to read data %+v\n", err)
+	rawBuf := []byte(cmd.Raw)
+	strs := cmd.Args
+	if h.startTransaction && !h.isExecute {
+		h.queueTrans = append(h.queueTrans, cmd)
 		return
 	}
 	fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
@@ -42,11 +47,9 @@ func (h *Handler) handleCommand(rawStr string) {
 			conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
 		}
 		shouldUpdateByte = true
-		break
 	case "echo":
 		reply = strs[1]
 		conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
-		break
 	case "set":
 		handleSet(strs[1:])
 		now := time.Now()
@@ -115,7 +118,17 @@ func (h *Handler) handleCommand(rawStr string) {
 			h.Write(h.IntegerResponse(1))
 		}
 	case "multi":
+		h.startTransaction = true
 		h.Write(h.SimpleStringResponse("OK"))
+	case "exec": 
+		if !h.startTransaction {
+			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI\r\n"))
+			return
+		}
+		h.isExecute = true
+		for _, c := range h.queueTrans {
+			h.handleCommand(c)
+		}
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {

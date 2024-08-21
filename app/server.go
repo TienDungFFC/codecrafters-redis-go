@@ -6,13 +6,20 @@ import (
 	"os"
 )
 
+
 type Handler struct {
 	conn net.Conn
+	startTransaction bool
+	queueTrans []Command
+	isExecute bool
 }
 
 func NewHandler(c net.Conn) *Handler {
 	return &Handler{
 		conn: c,
+		startTransaction: false,
+		queueTrans: make([]Command, 0),
+		isExecute: false,
 	}
 }
 func main() {
@@ -29,8 +36,6 @@ func main() {
 	// Ensure we teardown the server when the program exits
 	defer listener.Close()
 
-	fmt.Println(fmt.Sprintf("Server is listening on port %d", port))
-
 	if !_metaInfo.isMaster() {
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", _metaInfo.masterHost, _metaInfo.masterPort))
 		if err != nil {
@@ -38,7 +43,7 @@ func main() {
 			os.Exit(-1)
 		}
 		cHandler := NewHandler(conn)
-		cHandler.handshake()
+		cHandler.handshake()	
 	}
 
 	for {
