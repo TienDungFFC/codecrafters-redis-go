@@ -40,7 +40,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 
 	var reply string
 	var shouldUpdateByte bool
-	if h.startTransaction && command != "exec" {
+	if h.startTransaction && command != "exec" && !h.isExecute {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
 		h.Write(h.QueuedResponse())
 		fmt.Println("command when start transaction: ", command)
