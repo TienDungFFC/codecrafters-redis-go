@@ -32,7 +32,6 @@ func handleCommand(conn net.Conn, rawStr string) {
 	command := strings.ToLower(strs[0])
 	byteLen := len(rawBuf)
 
-	now := time.Now()
 	var reply string
 	var shouldUpdateByte bool
 	switch command {
@@ -48,7 +47,8 @@ func handleCommand(conn net.Conn, rawStr string) {
 		conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
 		break
 	case "set":
-		handleSet(now, strs[1:])
+		handleSet(strs[1:])
+		now := time.Now()
 		if _metaInfo.isMaster() {
 			reply = "OK"
 			conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
@@ -58,7 +58,7 @@ func handleCommand(conn net.Conn, rawStr string) {
 		shouldUpdateByte = true
 		_metaInfo.startSet.Store(true)
 	case "get":
-		resp, ok := handleGet(now, strs[1])
+		resp, ok := handleGet(strs[1])
 		if ok {
 			reply = resp
 			conn.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(reply), reply)))
@@ -96,13 +96,22 @@ func handleCommand(conn net.Conn, rawStr string) {
 		} else if strs[2] == "dbfilename" {
 			conn.Write([]byte(fmt.Sprintf("*2\r\n$10\r\ndbfilename\r\n$%d\r\n%s\r\n", len(_metaInfo.dbFileName), _metaInfo.dbFileName)))
 		}
+	case "incr":
+		v, ok := handleGet(strs[1])
+		iV, _ := strconv.Atoi(v)
+		iV++
+		if ok {
+			handleSet([]string{strs[1], strconv.Itoa(iV)})
+			integerResponse(iV)
+		}
 	}
 	if !_metaInfo.isMaster() && shouldUpdateByte {
 		_metaInfo.processedBytes.Add(int32(byteLen))
 	}
 }
 
-func handleSet(now time.Time, strs []string) {
+func handleSet(strs []string) {
+	now := time.Now()
 	key := strs[0]
 	value := strs[1]
 
@@ -124,7 +133,8 @@ func handleSet(now time.Time, strs []string) {
 	_map.Store(key, stored)
 }
 
-func handleGet(now time.Time, key string) (string, bool) {
+func handleGet(key string) (string, bool) {
+	now := time.Now()
 	value, ok := _map.Load(key)
 	if !ok {
 		return "", false
@@ -188,4 +198,8 @@ func handleWait(conn net.Conn, replicaStr, waitMSStr string) {
 	}
 	conn.Write([]byte(fmt.Sprintf(":%d\r\n", ackNum)))
 	return
+}
+
+func integerResponse(i int) string {
+	return fmt.Sprintf(":%d\r\n", i)
 }
