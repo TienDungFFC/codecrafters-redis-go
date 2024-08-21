@@ -25,18 +25,7 @@ func (h *Handler) handleClient() {
 
 		for _, command := range commands {
 			fmt.Printf("parsed command %q\n", strconv.Quote(command))
-			strs, err := parseString(command)
-			cmd := Command{
-				Raw: command,
-				Args: strs,
-			}
-
-			if err != nil {
-				fmt.Printf("failed to read data %+v\n", err)
-				return
-			}
-			fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
-			h.handleCommand(cmd)
+			h.handleCommand(command)
 		}
 	}
 }

@@ -25,12 +25,12 @@ var (
 	ackReceived = make(chan bool)
 )
 
-func (h *Handler) handleCommand(cmd Command) {
+func (h *Handler) handleCommand(rawStr string) {
 	conn := h.conn
-	rawBuf := []byte(cmd.Raw)
-	strs := cmd.Args
-	if h.startTransaction && !h.isExecute {
-		h.queueTrans = append(h.queueTrans, cmd)
+	rawBuf := []byte(rawStr)
+	strs, err := parseString(rawStr)
+	if err != nil {
+		fmt.Printf("failed to read data %+v\n", err)
 		return
 	}
 	fmt.Printf("localhost:%d got %q\n", _metaInfo.port, strs)
@@ -127,7 +127,7 @@ func (h *Handler) handleCommand(cmd Command) {
 		}
 		h.isExecute = true
 		for _, c := range h.queueTrans {
-			h.handleCommand(c)
+			h.handleCommand(c.Raw)
 		}
 	}
 
