@@ -148,13 +148,15 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "multi":
 		h.startTransaction = true
 		h.Write(h.SimpleStringResponse("OK"))
-	case "exec": 
+	case "exec":
+		fmt.Println("check exec with transaction: ", h.startTransaction) 
 		if !h.startTransaction {
 			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
 			return ""
 		} else {
 			if len(h.queueTrans) == 0 {
 				h.Write(h.EmptyArrayResponse())
+				h.startTransaction = false
 				return ""
 			}
 			h.isExecute = true
