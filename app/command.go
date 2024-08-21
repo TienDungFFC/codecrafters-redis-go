@@ -130,7 +130,6 @@ func (h *Handler) handleCommand(rawStr string) {
 			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
 			return
 		} else {
-			h.startTransaction = false
 			if len(h.queueTrans) == 0 {
 				h.Write(h.EmptyArrayResponse())
 				return
@@ -139,6 +138,7 @@ func (h *Handler) handleCommand(rawStr string) {
 			for _, c := range h.queueTrans {
 				h.handleCommand(c.Raw)
 			}
+			h.startTransaction = false
 		}
 	}
 
