@@ -20,6 +20,7 @@ type Command struct {
 	Args []string
 }
 
+var lock sync.Mutex
 var _map sync.Map
 var (
 	ackReceived = make(chan bool)
@@ -139,6 +140,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		h.startTransaction = true
 		h.Write(h.SimpleStringResponse("OK"))
 	case "exec": 
+		lock.Lock()
 		if !h.startTransaction {
 			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
 			return ""
@@ -161,6 +163,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.startTransaction = false
 			h.Write(h.ArrayResponse(res))
 		}
+		lock.Unlock()
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
