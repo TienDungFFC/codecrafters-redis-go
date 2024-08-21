@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 	"sync"
@@ -23,6 +24,7 @@ const (
 	REPLCONF = "replconf"
 	PSYNC    = "psync"
 	WAIT     = "wait"
+	INCR     = "incr"
 )
 
 type Value struct {
@@ -114,6 +116,16 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case WAIT:
 		go s.handleWait()
+	case INCR:
+		existKV, ok := mSet[string(args[1])]
+		if ok {
+			mSet[string(args[1])] =
+				Value{
+					val: []byte(strconv.Itoa(int(big.NewInt(0).SetBytes(existKV.val).Uint64()) + 1)),
+					px:  existKV.px,
+				}
+			s.writeData(integersResponse((int(big.NewInt(0).SetBytes(mSet[string(args[1])].val).Uint64()))))
+		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
