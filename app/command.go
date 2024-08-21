@@ -97,9 +97,9 @@ func handleCommand(conn net.Conn, rawStr string) {
 			conn.Write([]byte(fmt.Sprintf("*2\r\n$10\r\ndbfilename\r\n$%d\r\n%s\r\n", len(_metaInfo.dbFileName), _metaInfo.dbFileName)))
 		}
 	case "incr":
-		fmt.Println("go to incr: ", strs[1])
 		v, ok := handleGet(strs[1])
 		iV, _ := strconv.Atoi(v)
+		fmt.Println("go to incr: ", v)
 		iV++
 		if ok {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
