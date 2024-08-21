@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -47,7 +48,9 @@ func (h *Handler) handleCommand(rawStr string) string {
 
 	var reply string
 	var shouldUpdateByte bool
-	if h.startTransaction && command != "exec" && !h.isExecute {
+	
+	transExceptCmd := []string{"exec", "discard"}
+	if h.startTransaction && !slices.Contains(transExceptCmd, command) && !h.isExecute {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
 		h.Write(h.QueuedResponse())
 		fmt.Println("command when start transaction: ", command)
