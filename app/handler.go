@@ -144,12 +144,9 @@ func (s *Server) handleWait() {
 	}
 
 	for _, slave := range slaves {
-		if s.offset > 0 {
-			fmt.Println()
-			go func() {
-				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-			}()
-		}
+		go func() {
+			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+		}()
 	}
 	timer := time.After(time.Duration(duration) * time.Millisecond)
 	ackCount := 0
