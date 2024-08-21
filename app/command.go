@@ -122,7 +122,7 @@ func (h *Handler) handleCommand(cmd Command) {
 		h.Write(h.SimpleStringResponse("OK"))
 	case "exec": 
 		if !h.startTransaction {
-			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI\r\n"))
+			h.Write(h.SimpleErrorResponse("ERR EXEC without MULTI"))
 			return
 		}
 		h.isExecute = true
