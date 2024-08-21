@@ -146,11 +146,5 @@ func (s *Server) handleConnection() {
 		}
 		fmt.Println("string buffer: ", string(buf))
 		s.handler(buf[:n])
-		// res := string(buf[:n])
-		// _, err = conn.Write([]byte(res))
-		// if err != nil {
-		// 	fmt.Println("Error writing connection: ", err.Error())
-		// 	os.Exit(1)
-		// }
 	}
 }

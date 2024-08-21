@@ -23,6 +23,7 @@ const (
 	REPLCONF = "replconf"
 	PSYNC    = "psync"
 	WAIT     = "wait"
+	INCR     = "incr"
 )
 
 type Value struct {
@@ -30,8 +31,7 @@ type Value struct {
 	px  time.Time
 }
 
-var mSet = make(map[string]Value)
-var lock sync.Mutex
+var _map sync.Map
 
 func (s *Server) handler(str []byte) {
 	args, _ := readCommand(str)
@@ -65,7 +65,7 @@ func (s *Server) handlecommand(args [][]byte) {
 			ex := n.Add(time.Duration(t) * time.Millisecond)
 			v.px = ex
 		}
-		mSet[string(args[1])] = v
+		_map.Store(string(args[1]), v)
 		if s.role == MASTER {
 			s.writeData(simpleStringResponse("OK"))
 		}
@@ -76,10 +76,11 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 
 	case GET:
-		val, ok := mSet[string(args[1])]
-		if ok && (val.px.IsZero() || time.Now().Before(val.px)) {
-			s.writeData(bulkStringResponse(strings.TrimSpace(string(val.val))))
-		} else if time.Now().After(val.px) {
+		val, ok := _map.Load(string(args[1]))
+		v := val.(Value)
+		if ok && (v.px.IsZero() || time.Now().Before(v.px)) {
+			s.writeData(bulkStringResponse(strings.TrimSpace(string(v.val))))
+		} else if time.Now().After(v.px) {
 			s.writeData(nullBulkStringResponse())
 		} else {
 			s.writeData(nullBulkStringResponse())
@@ -114,6 +115,14 @@ func (s *Server) handlecommand(args [][]byte) {
 		}
 	case WAIT:
 		go s.handleWait()
+	case INCR:
+		val, ok := _map.Load(string(args[1]))
+		v := val.(Value)
+		if ok {
+			iVal, _ := strconv.Atoi(string(v.val))
+			iVal++
+			s.writeData(integersResponse(iVal))
+		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
@@ -124,19 +133,10 @@ func (s *Server) handleWait() {
 	nOfRepl, _ := strconv.Atoi(string(args[1]))
 	duration, _ := strconv.Atoi(string(args[2]))
 
-	if len(mSet) == 0 {
-		s.writeData(integersResponse(len(slaves)))
-		return
-	}
-
 	for _, slave := range slaves {
-		fmt.Println("len of slaves: ", s.offset)
-		if s.offset > 0 {
-			fmt.Println()
-			go func() {
-				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-			}()
-		}
+		go func() {
+			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+		}()
 	}
 	timer := time.After(time.Duration(duration) * time.Millisecond)
 	ackCount := 0
@@ -148,12 +148,12 @@ func (s *Server) handleWait() {
 			fmt.Println("increasing ackcount: ", ackCount)
 			ackCount++
 		case <-timer:
-			s.writeData(integersResponse(1))
+			s.writeData(integersResponse(ackCount))
 			return
 		}
 	}
 
-	s.writeData(integersResponse(1))
+	s.writeData(integersResponse(ackCount))
 }
 
 func (s *Server) handleEcho() {
