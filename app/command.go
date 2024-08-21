@@ -107,7 +107,7 @@ func (h *Handler) handleCommand(rawStr string) {
 			h.Write(h.IntegerResponse(iV))
 		} else {
 			handleSet([]string{strs[1], "1"})
-			h.Write("1")
+			h.Write(h.IntegerResponse(1))
 		}
 	}
 	if !_metaInfo.isMaster() && shouldUpdateByte {
