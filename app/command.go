@@ -40,7 +40,7 @@ func (h *Handler) handleCommand(rawStr string) {
 
 	var reply string
 	var shouldUpdateByte bool
-	if h.startTransaction && !h.isExecute {
+	if h.startTransaction && command != "exec" {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
 		h.Write(h.QueuedResponse())
 		return
