@@ -162,7 +162,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 			cElement := 0
 			res := []string{}
 			for _, c := range h.queueTrans {
-				h.handleCommand(c.Raw)
 				cElement++
 				res = append(res, h.handleCommand(c.Raw))
 			}
