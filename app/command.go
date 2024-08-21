@@ -140,6 +140,9 @@ func (h *Handler) handleCommand(rawStr string) string {
 			}
 			h.Write(h.IntegerResponse(iV))
 		} else if ok && !isNumeric {
+			if (h.isExecute) {
+				return h.SimpleErrorResponse("ERR value is not an integer or out of range")
+			}
 			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
 		} else {
 			handleSet([]string{strs[1], "1"})
