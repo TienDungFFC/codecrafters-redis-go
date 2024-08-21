@@ -99,7 +99,11 @@ func (h *Handler) handleCommand(rawStr string) {
 		}
 	case "incr":
 		v, ok := handleGet(strs[1])
-		iV, _ := strconv.Atoi(v)
+		iV, err := strconv.Atoi(v)
+		if err != nil {
+			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
+			return
+		}
 		fmt.Println("go to incr: ", v)
 		iV++
 		if ok {
@@ -210,4 +214,8 @@ func (h *Handler) Write(s string) {
 }
 func (h *Handler) IntegerResponse(i int) string {
 	return fmt.Sprintf(":%d\r\n", i)
+}
+
+func (h *Handler) SimpleErrorResponse(err string) string {
+	return fmt.Sprintf("-%s\r\n", err)
 }
