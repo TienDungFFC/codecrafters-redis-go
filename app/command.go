@@ -104,8 +104,8 @@ func (h *Handler) handleCommand(rawStr string) {
 		if err != nil {
 			isNumeric = false
 		}
-		iV++
 		if ok && isNumeric {
+			iV++
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
 			h.Write(h.IntegerResponse(iV))
 		} else if ok && !isNumeric {
@@ -114,7 +114,10 @@ func (h *Handler) handleCommand(rawStr string) {
 			handleSet([]string{strs[1], "1"})
 			h.Write(h.IntegerResponse(1))
 		}
+	case "multi":
+		h.Write(h.SimpleStringResponse("OK"))
 	}
+
 	if !_metaInfo.isMaster() && shouldUpdateByte {
 		_metaInfo.processedBytes.Add(int32(byteLen))
 	}
@@ -219,4 +222,8 @@ func (h *Handler) IntegerResponse(i int) string {
 
 func (h *Handler) SimpleErrorResponse(err string) string {
 	return fmt.Sprintf("-%s\r\n", err)
+}
+
+func (h *Handler) SimpleStringResponse(s string) string {
+	return fmt.Sprintf("+%s\r\n", s)
 }
