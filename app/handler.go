@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"math/big"
 	"strconv"
 	"strings"
 	"sync"
@@ -119,12 +118,15 @@ func (s *Server) handlecommand(args [][]byte) {
 	case INCR:
 		existKV, ok := mSet[string(args[1])]
 		if ok {
+			iVal, _ := strconv.Atoi(string(existKV.val))
+			iVal++
+			sVal := strconv.Itoa(iVal)
 			mSet[string(args[1])] =
 				Value{
-					val: []byte(strconv.Itoa(int(big.NewInt(0).SetBytes(existKV.val).Uint64()) + 1)),
+					val: []byte(sVal),
 					px:  existKV.px,
 				}
-			s.writeData(integersResponse((int(big.NewInt(0).SetBytes(mSet[string(args[1])].val).Uint64()))))
+			s.writeData(integersResponse(iVal))
 		}
 	default:
 		s.writeData(simpleStringResponse("unknown"))
