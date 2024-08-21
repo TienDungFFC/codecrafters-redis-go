@@ -181,6 +181,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		} else {
 			h.queueTrans = []Command{}
 			h.Write(h.SimpleStringResponse("OK"))
+			h.startTransaction = false
 		}
 	}
 
