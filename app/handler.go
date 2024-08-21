@@ -113,42 +113,47 @@ func (s *Server) handlecommand(args [][]byte) {
 			(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
 		}
 	case WAIT:
-		nOfRepl, _ := strconv.Atoi(string(args[1]))
-		duration, _ := strconv.Atoi(string(args[2]))
-
-		if len(mSet) == 0 {
-			s.writeData(integersResponse(len(slaves)))
-			return
-		}
-
-		for _, slave := range slaves {
-			fmt.Println("len of slaves: ", s.offset)
-			if s.offset > 0 {
-				fmt.Println()
-				go func() {
-					(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
-				}()
-			}
-		}
-		timer := time.After(time.Duration(duration) * time.Millisecond)
-		ackCount := 0
-
-		for ackCount < nOfRepl {
-
-			select {
-			case <-ackChan:
-				fmt.Println("increasing ackcount: ", ackCount)
-				ackCount++
-			case <-timer:
-				s.writeData(integersResponse(1))
-				return
-			}
-		}
-
-		s.writeData(integersResponse(1))
+		go s.handleWait()
 	default:
 		s.writeData(simpleStringResponse("unknown"))
 	}
+}
+
+func (s *Server) handleWait() {
+	args := s.cmd.Args
+	nOfRepl, _ := strconv.Atoi(string(args[1]))
+	duration, _ := strconv.Atoi(string(args[2]))
+
+	if len(mSet) == 0 {
+		s.writeData(integersResponse(len(slaves)))
+		return
+	}
+
+	for _, slave := range slaves {
+		fmt.Println("len of slaves: ", s.offset)
+		if s.offset > 0 {
+			fmt.Println()
+			go func() {
+				(*slave).Write([]byte("*3\r\n$8\r\nREPLCONF\r\n$6\r\nGETACK\r\n$1\r\n*\r\n"))
+			}()
+		}
+	}
+	timer := time.After(time.Duration(duration) * time.Millisecond)
+	ackCount := 0
+
+	for ackCount < nOfRepl {
+
+		select {
+		case <-ackChan:
+			fmt.Println("increasing ackcount: ", ackCount)
+			ackCount++
+		case <-timer:
+			s.writeData(integersResponse(1))
+			return
+		}
+	}
+
+	s.writeData(integersResponse(1))
 }
 
 func (s *Server) handleEcho() {
