@@ -16,18 +16,19 @@ var (
 
 type RDB struct {
 	reader *bufio.Reader
+	file *os.File
 }
 
-func (r *RDB) LoadFile() {
+func (r *RDB) LoadFile()  {
 	filename := _metaInfo.dir + "/" + _metaInfo.dbFileName
 	file, err := os.Open( filename)
 	if err != nil {
 		// return nil, err
 		fmt.Println("file doesn't exists")
 	}
-	defer file.Close()
 	reader := bufio.NewReader(file)
 	r.reader = reader
+	r.file = file
 }
 
 func (r *RDB) ReadDB() {

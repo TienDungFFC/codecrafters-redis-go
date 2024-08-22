@@ -192,7 +192,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		r := RDB{}
 		r.LoadFile()
 		r.ReadDB()
-
+		r.file.Close()
 		c := 0
 		tmp := ""
     	_map.Range(func(key, value interface{}) bool {
