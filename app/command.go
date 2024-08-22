@@ -190,7 +190,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "keys":
 		fmt.Println("_dir: ", _metaInfo.dir)
 		fmt.Println("_dbFilename: ", _metaInfo.dbFileName)
-		file, err := os.Open(_metaInfo.dir + _metaInfo.dbFileName)
+		file, err := os.Open(_metaInfo.dir + "/" + _metaInfo.dbFileName)
 		if err != nil {
 			fmt.Println("File is not exist")
 		}
