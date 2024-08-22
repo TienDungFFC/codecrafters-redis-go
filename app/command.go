@@ -194,6 +194,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			fmt.Println("File is not exist")
 		}
 		fmt.Println("content file: ", content)
+		fmt.Println("string content file: ", string(content))
 
 	}
 
