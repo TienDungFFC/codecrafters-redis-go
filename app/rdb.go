@@ -34,6 +34,7 @@ func (r *RDB) LoadFile()  {
 func (r *RDB) ReadDB() {
 	for {
 		t, err := r.reader.ReadByte()
+		fmt.Println("t: ", string(t))
 		if err != nil {
 			panic(err)
 		}
