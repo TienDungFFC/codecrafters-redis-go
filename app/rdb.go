@@ -36,7 +36,7 @@ func (r *RDB) ReadDB() {
 		t, err := r.reader.ReadByte()
 		fmt.Println("t: ", string(t))
 		if err != nil {
-			panic(err)
+			return 
 		}
 		if t != 0xFE {
 			continue
@@ -109,8 +109,7 @@ func (r *RDB) ReadDB() {
 				}
 			
 				_map.Store(key, redisValue)
-		}
-
+			}
 		}
 	}
 }
