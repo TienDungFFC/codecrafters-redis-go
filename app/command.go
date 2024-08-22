@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+
+
 type store struct {
 	value    string
 	expireAt time.Time
@@ -187,15 +189,20 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.startTransaction = false
 		}
 	case "keys":
-		fmt.Println("_dir: ", _metaInfo.dir)
-		fmt.Println("_dbFilename: ", _metaInfo.dbFileName)
-		content, err := os.ReadFile(_metaInfo.dir + "/" + _metaInfo.dbFileName)
-		if err != nil {
-			fmt.Println("File is not exist")
-		}
-		fmt.Println("content file: ", content)
-		fmt.Println("string content file: ", string(content))
+		r := RDB{}
+		r.LoadFile()
+		r.ReadDB()
 
+		c := 0
+		tmp := ""
+    	_map.Range(func(key, value interface{}) bool {
+			tmp += fmt.Sprintf("$%d\r\n%s", len(key.(string)), key)
+       	 	c++
+			return true
+		})
+		res := fmt.Sprintf("*%d\r\n", c)
+		res = res + tmp
+		h.Write(res)
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
@@ -204,6 +211,8 @@ func (h *Handler) handleCommand(rawStr string) string {
 	}
 	return "success"
 }
+
+func parseRdb() 
 
 func handleSet(strs []string) {
 	now := time.Now()
