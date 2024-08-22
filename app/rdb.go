@@ -39,75 +39,77 @@ func (r *RDB) ReadDB() {
 		}
 		if t != 0xFE {
 			continue
-		}
-		dbNumber, err := r.readSize()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Database number: %d\n", dbNumber)
-		t, err = r.reader.ReadByte()
-		if err != nil {
-			panic(err)
-		}
-		if t != 0xFB {
-			panic("Invalid database section")
-		}
-		hashTableSize, err := r.readSize()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Hash table size: %d\n", hashTableSize)
-		expiresSize, err := r.readSize()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Expires size: %d\n", expiresSize)
-		for i := 0; i < hashTableSize; i++ {
-			valueType, err := r.reader.ReadByte()
-			fmt.Println("value type: ", string(valueType))
+		} else {
+			dbNumber, err := r.readSize()
 			if err != nil {
 				panic(err)
 			}
-			// 0x00 value type is a string
-			if valueType != 0x00 {
-				panic("Unsupported value type")
-			}
-			key, err := r.readString()
+			fmt.Printf("Database number: %d\n", dbNumber)
+			t, err = r.reader.ReadByte()
 			if err != nil {
 				panic(err)
 			}
-			value, err := r.readString()
+			if t != 0xFB {
+				panic("Invalid database section")
+			}
+			hashTableSize, err := r.readSize()
 			if err != nil {
 				panic(err)
 			}
-			redisValue := store{value: value}
-			if (expiresSize > 0) {
-				expiryType, err := r.reader.ReadByte()
+			fmt.Printf("Hash table size: %d\n", hashTableSize)
+			expiresSize, err := r.readSize()
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("Expires size: %d\n", expiresSize)
+			for i := 0; i < hashTableSize; i++ {
+				valueType, err := r.reader.ReadByte()
+				fmt.Println("value type: ", string(valueType))
 				if err != nil {
 					panic(err)
 				}
-				// expiry time is in milliseconds
-				switch expiryType {
-				case 0xFC:
-					var expiryMs int64
-					err := binary.Read(r.reader, binary.LittleEndian, &expiryMs)
-					if err != nil {
-						panic(err)
-					}
-					redisValue.expireAt = time.UnixMilli(expiryMs)
-				case 0xFD:
-					var expirySec int64
-					err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
-					if err != nil {
-						panic(err)
-					}
-					redisValue.expireAt = time.Unix(expirySec * 1000, 0)
-				default:
-					r.reader.UnreadByte()
+				// 0x00 value type is a string
+				if valueType != 0x00 {
+					panic("Unsupported value type")
 				}
-			}
-		
-			_map.Store(key, redisValue)
+				key, err := r.readString()
+				if err != nil {
+					panic(err)
+				}
+				value, err := r.readString()
+				if err != nil {
+					panic(err)
+				}
+				redisValue := store{value: value}
+				if (expiresSize > 0) {
+					expiryType, err := r.reader.ReadByte()
+					if err != nil {
+						panic(err)
+					}
+					// expiry time is in milliseconds
+					switch expiryType {
+					case 0xFC:
+						var expiryMs int64
+						err := binary.Read(r.reader, binary.LittleEndian, &expiryMs)
+						if err != nil {
+							panic(err)
+						}
+						redisValue.expireAt = time.UnixMilli(expiryMs)
+					case 0xFD:
+						var expirySec int64
+						err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
+						if err != nil {
+							panic(err)
+						}
+						redisValue.expireAt = time.Unix(expirySec * 1000, 0)
+					default:
+						r.reader.UnreadByte()
+					}
+				}
+			
+				_map.Store(key, redisValue)
+		}
+
 		}
 	}
 }
