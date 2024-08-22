@@ -212,8 +212,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 	return "success"
 }
 
-func parseRdb() 
-
 func handleSet(strs []string) {
 	now := time.Now()
 	key := strs[0]
