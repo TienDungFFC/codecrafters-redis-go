@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -190,24 +189,11 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "keys":
 		fmt.Println("_dir: ", _metaInfo.dir)
 		fmt.Println("_dbFilename: ", _metaInfo.dbFileName)
-		file, err := os.Open(_metaInfo.dir + "/" + _metaInfo.dbFileName)
+		content, err := os.ReadFile(_metaInfo.dir + "/" + _metaInfo.dbFileName)
 		if err != nil {
 			fmt.Println("File is not exist")
 		}
-		defer file.Close()
-		fileScanner := bufio.NewScanner(file)
-		fileScanner.Split(bufio.ScanLines)
-
-		var fileLines []string
-
-		for fileScanner.Scan() {
-			fileLines = append(fileLines, fileScanner.Text())
-		}
-		for _, line := range fileLines {
-			fmt.Println("line: ", line)
-		}
-
-		fmt.Println("fileLines:", fileLines)
+		fmt.Println("content file: ", content)
 
 	}
 
