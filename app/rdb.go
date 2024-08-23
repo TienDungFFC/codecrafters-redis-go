@@ -66,14 +66,11 @@ func (r *RDB) ReadDB() {
 			fmt.Printf("Expires size: %d\n", expiresSize)
 			for i := 0; i < hashTableSize; i++ {
 				valueType, err := r.reader.ReadByte()
-				fmt.Println("value type: ", string(valueType))
+				fmt.Println("value type: ", valueType)
 				if err != nil {
 					panic(err)
 				}
 				// 0x00 value type is a string
-				if valueType != 0x00 {
-					panic("Unsupported value type")
-				}
 				key, err := r.readString()
 				if err != nil {
 					panic(err)
