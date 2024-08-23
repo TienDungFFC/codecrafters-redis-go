@@ -63,7 +63,7 @@ func (r *RDB) ReadDB() {
 				panic(err)
 			}
 			fmt.Printf("Expires size: %d\n", expiresSize)
-			r.reader.ReadByte()
+			// r.reader.ReadByte()
 			for i := 0; i < hashTableSize; i++ {
 				valueType, err := r.reader.ReadByte()
 				fmt.Println("value type: ", valueType)
@@ -98,12 +98,12 @@ func (r *RDB) ReadDB() {
 						}
 						redisValue.expireAt = time.UnixMilli(expiryMs)
 					case 0xFD:
-						var expirySec int64
+						var expirySec int32
 						err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
 						if err != nil {
 							panic(err)
 						}
-						redisValue.expireAt = time.Unix(expirySec*1000, 0)
+						redisValue.expireAt = time.Unix(int64(expirySec), 0)
 					default:
 						r.reader.UnreadByte()
 					}
