@@ -55,6 +55,7 @@ func (r *RDB) ReadDB() {
 				panic("Invalid database section")
 			}
 			hashTableSize, err := r.readSize()
+			fmt.Println("size of hashtable: ", t)
 			if err != nil {
 				panic(err)
 			}
