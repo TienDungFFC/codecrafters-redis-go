@@ -68,15 +68,18 @@ func (r *RDB) ReadDB() {
 				valueType, err := r.reader.ReadByte()
 				fmt.Println("value type: ", valueType)
 				if err != nil {
+					fmt.Println("error reading value type: ", err)
 					panic(err)
 				}
 				// 0x00 value type is a string
 				key, err := r.readString()
 				if err != nil {
+					fmt.Println("error reading string value: ", err)
 					panic(err)
 				}
 				value, err := r.readString()
 				if err != nil {
+					fmt.Println("error reading value: ", err)
 					panic(err)
 				}
 				redisValue := store{value: value}
