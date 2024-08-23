@@ -195,7 +195,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			c++
 			return true
 		})
-		res := fmt.Sprintf("*%d\r\n%s\r\n", c, tmp)
+		res := fmt.Sprintf("*%d\r\n%s", c, tmp)
 		h.Write(res)
 	}
 
