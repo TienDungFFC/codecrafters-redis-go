@@ -83,30 +83,28 @@ func (r *RDB) ReadDB() {
 					panic(err)
 				}
 				redisValue := store{value: value}
-				if expiresSize > 0 {
-					expiryType, err := r.reader.ReadByte()
+				expiryType, err := r.reader.ReadByte()
+				if err != nil {
+					panic(err)
+				}
+				// expiry time is in milliseconds
+				switch expiryType {
+				case 0xFC:
+					var expiryMs int64
+					err := binary.Read(r.reader, binary.LittleEndian, &expiryMs)
 					if err != nil {
 						panic(err)
 					}
-					// expiry time is in milliseconds
-					switch expiryType {
-					case 0xFC:
-						var expiryMs int64
-						err := binary.Read(r.reader, binary.LittleEndian, &expiryMs)
-						if err != nil {
-							panic(err)
-						}
-						redisValue.expireAt = time.UnixMilli(expiryMs)
-					case 0xFD:
-						var expirySec int32
-						err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
-						if err != nil {
-							panic(err)
-						}
-						redisValue.expireAt = time.Unix(int64(expirySec), 0)
-					default:
-						r.reader.UnreadByte()
+					redisValue.expireAt = time.UnixMilli(expiryMs)
+				case 0xFD:
+					var expirySec int32
+					err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
+					if err != nil {
+						panic(err)
 					}
+					redisValue.expireAt = time.Unix(int64(expirySec), 0)
+				default:
+					r.reader.UnreadByte()
 				}
 
 				_map.Store(key, redisValue)
@@ -117,7 +115,6 @@ func (r *RDB) ReadDB() {
 
 func (r *RDB) readSize() (int, error) {
 	t, err := r.reader.ReadByte()
-	fmt.Println("size of hashtable: ", t)
 	if err != nil {
 		return 0, err
 	}
