@@ -191,7 +191,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		c := 0
 		tmp := ""
 		_map.Range(func(key, value interface{}) bool {
-			tmp += fmt.Sprintf("$%d\r\n%s", len(key.(string)), key)
+			tmp += fmt.Sprintf("$%d\r\n%s\r\n", len(key.(string)), key)
 			c++
 			return true
 		})
