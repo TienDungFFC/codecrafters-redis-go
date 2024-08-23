@@ -63,7 +63,7 @@ func (r *RDB) ReadDB() {
 				panic(err)
 			}
 			fmt.Printf("Expires size: %d\n", expiresSize)
-			// r.reader.ReadByte()
+			r.reader.ReadByte()
 			for i := 0; i < hashTableSize; i++ {
 				valueType, err := r.reader.ReadByte()
 				fmt.Println("value type: ", valueType)
