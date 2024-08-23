@@ -6,24 +6,32 @@ import (
 	"os"
 )
 
-
 type Handler struct {
-	conn net.Conn
+	conn             net.Conn
 	startTransaction bool
-	queueTrans []Command
-	isExecute bool
+	queueTrans       []Command
+	isExecute        bool
 }
 
 func NewHandler(c net.Conn) *Handler {
 	return &Handler{
-		conn: c,
+		conn:             c,
 		startTransaction: false,
-		queueTrans: make([]Command, 0),
-		isExecute: false,
+		queueTrans:       make([]Command, 0),
+		isExecute:        false,
 	}
 }
 func main() {
 	initMeta()
+
+	r := RDB{}
+	r.LoadFile()
+	if r.file != nil {
+		r.ReadDB()
+		r.file.Close()
+	} else {
+		fmt.Println("File doesn't exists")
+	}
 
 	port := _metaInfo.port
 	// Listen for incoming connections
@@ -43,7 +51,7 @@ func main() {
 			os.Exit(-1)
 		}
 		cHandler := NewHandler(conn)
-		cHandler.handshake()	
+		cHandler.handshake()
 	}
 
 	for {

@@ -16,12 +16,12 @@ var (
 
 type RDB struct {
 	reader *bufio.Reader
-	file *os.File
+	file   *os.File
 }
 
-func (r *RDB) LoadFile()  {
+func (r *RDB) LoadFile() {
 	filename := _metaInfo.dir + "/" + _metaInfo.dbFileName
-	file, err := os.Open( filename)
+	file, err := os.Open(filename)
 	if err != nil {
 		// return nil, err
 		fmt.Println("file doesn't exists")
@@ -36,9 +36,9 @@ func (r *RDB) ReadDB() {
 		t, err := r.reader.ReadByte()
 		fmt.Println("t: ", string(t))
 		if err != nil {
-			return 
+			return
 		}
-		if t != 0xFE {
+		if t != startDBSection {
 			continue
 		} else {
 			dbNumber, err := r.readSize()
@@ -82,7 +82,7 @@ func (r *RDB) ReadDB() {
 					panic(err)
 				}
 				redisValue := store{value: value}
-				if (expiresSize > 0) {
+				if expiresSize > 0 {
 					expiryType, err := r.reader.ReadByte()
 					if err != nil {
 						panic(err)
@@ -102,12 +102,12 @@ func (r *RDB) ReadDB() {
 						if err != nil {
 							panic(err)
 						}
-						redisValue.expireAt = time.Unix(expirySec * 1000, 0)
+						redisValue.expireAt = time.Unix(expirySec*1000, 0)
 					default:
 						r.reader.UnreadByte()
 					}
 				}
-			
+
 				_map.Store(key, redisValue)
 			}
 		}
@@ -175,7 +175,7 @@ func (r *RDB) readSpecialEncodedString(reader *bufio.Reader) (string, error) {
 	}
 	switch format {
 	// 8 bit integer string
-	case 0xC0:
+	case 0xC:
 		var b int8
 		err := binary.Read(reader, binary.LittleEndian, &b)
 		// read 8-bit integer

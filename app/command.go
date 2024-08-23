@@ -11,15 +11,13 @@ import (
 	"time"
 )
 
-
-
 type store struct {
 	value    string
 	expireAt time.Time
 }
 
 type Command struct {
-	Raw string
+	Raw  string
 	Args []string
 }
 
@@ -50,7 +48,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 
 	var reply string
 	var shouldUpdateByte bool
-	
+
 	transExceptCmd := []string{"exec", "discard"}
 	if h.startTransaction && !slices.Contains(transExceptCmd, command) && !h.isExecute {
 		h.queueTrans = append(h.queueTrans, Command{Raw: rawStr, Args: strs})
@@ -73,8 +71,8 @@ func (h *Handler) handleCommand(rawStr string) string {
 		now := time.Now()
 		if _metaInfo.isMaster() {
 			handleBroadcast(rawBuf, now.UnixMilli())
-			reply = "OK" 
-			if (h.isExecute) {
+			reply = "OK"
+			if h.isExecute {
 				return fmt.Sprintf("+%s\r\n", reply)
 			}
 			conn.Write([]byte(fmt.Sprintf("+%s\r\n", reply)))
@@ -86,7 +84,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		resp, ok := handleGet(strs[1])
 		if ok {
 			reply = resp
-			if (h.isExecute) {
+			if h.isExecute {
 				return fmt.Sprintf("$%d\r\n%s\r\n", len(reply), reply)
 			}
 			conn.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(reply), reply)))
@@ -137,18 +135,18 @@ func (h *Handler) handleCommand(rawStr string) string {
 			handleSet([]string{strs[1], strconv.Itoa(iV)})
 			lock.Unlock()
 
-			if (h.isExecute) {
+			if h.isExecute {
 				return h.IntegerResponse(iV)
 			}
 			h.Write(h.IntegerResponse(iV))
 		} else if ok && !isNumeric {
-			if (h.isExecute) {
+			if h.isExecute {
 				return h.SimpleErrorResponse("ERR value is not an integer or out of range")
 			}
 			h.Write(h.SimpleErrorResponse("ERR value is not an integer or out of range"))
 		} else {
 			handleSet([]string{strs[1], "1"})
-			if (h.isExecute) {
+			if h.isExecute {
 				return h.IntegerResponse(1)
 			}
 			h.Write(h.IntegerResponse(1))
@@ -189,15 +187,12 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.startTransaction = false
 		}
 	case "keys":
-		r := RDB{}
-		r.LoadFile()
-		r.ReadDB()
-		r.file.Close()
+
 		c := 0
 		tmp := ""
-    	_map.Range(func(key, value interface{}) bool {
+		_map.Range(func(key, value interface{}) bool {
 			tmp += fmt.Sprintf("$%d\r\n%s", len(key.(string)), key)
-       	 	c++
+			c++
 			return true
 		})
 		res := fmt.Sprintf("*%d\r\n%s\r\n", c, tmp)
