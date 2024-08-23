@@ -50,7 +50,7 @@ func (r *RDB) ReadDB() {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println("byte indices hash table size: ", string(t))
+			fmt.Println("byte indices hash table size: ", t)
 			if t != 0xFB {
 				panic("Invalid database section")
 			}
