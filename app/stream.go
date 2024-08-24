@@ -1,6 +1,6 @@
 package main
 
-var stream map[string]*StreamStore
+var stream = make(map[string]*StreamStore)
 
 type StreamEntryValue struct {
 	Key   string
