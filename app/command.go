@@ -202,7 +202,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			return true
 		})
 		res := fmt.Sprintf("*%d\r\n%s\r\n", c, tmp)
-			h.Write(res)
+		h.Write(res)
 	
 	case "type":
 		v, ok := _map.Load(strs[1])
@@ -211,8 +211,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 		} else {
 			h.Write(h.SimpleStringResponse(string(v.(store).typ)))
 		}
-		res := fmt.Sprintf("*%d\r\n%s", c, tmp)
-		h.Write(res)
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
