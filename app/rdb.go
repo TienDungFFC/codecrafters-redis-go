@@ -16,12 +16,12 @@ var (
 
 type RDB struct {
 	reader *bufio.Reader
-	file *os.File
+	file   *os.File
 }
 
-func (r *RDB) LoadFile()  {
+func (r *RDB) LoadFile() {
 	filename := _metaInfo.dir + "/" + _metaInfo.dbFileName
-	file, err := os.Open( filename)
+	file, err := os.Open(filename)
 	if err != nil {
 		// return nil, err
 		fmt.Println("file doesn't exists")
@@ -34,11 +34,10 @@ func (r *RDB) LoadFile()  {
 func (r *RDB) ReadDB() {
 	for {
 		t, err := r.reader.ReadByte()
-		fmt.Println("t: ", string(t))
 		if err != nil {
-			return 
+			return
 		}
-		if t != 0xFE {
+		if t != startDBSection {
 			continue
 		} else {
 			dbNumber, err := r.readSize()
@@ -50,6 +49,7 @@ func (r *RDB) ReadDB() {
 			if err != nil {
 				panic(err)
 			}
+			fmt.Println("byte indices hash table size: ", t)
 			if t != 0xFB {
 				panic("Invalid database section")
 			}
@@ -63,26 +63,11 @@ func (r *RDB) ReadDB() {
 				panic(err)
 			}
 			fmt.Printf("Expires size: %d\n", expiresSize)
+			// r.reader.ReadByte()
 			for i := 0; i < hashTableSize; i++ {
-				valueType, err := r.reader.ReadByte()
-				fmt.Println("value type: ", string(valueType))
-				if err != nil {
-					panic(err)
-				}
-				// 0x00 value type is a string
-				if valueType != 0x00 {
-					panic("Unsupported value type")
-				}
-				key, err := r.readString()
-				if err != nil {
-					panic(err)
-				}
-				value, err := r.readString()
-				if err != nil {
-					panic(err)
-				}
-				redisValue := store{value: value}
-				if (expiresSize > 0) {
+
+				redisValue := store{}
+				if expiresSize > 0 {
 					expiryType, err := r.reader.ReadByte()
 					if err != nil {
 						panic(err)
@@ -97,17 +82,34 @@ func (r *RDB) ReadDB() {
 						}
 						redisValue.expireAt = time.UnixMilli(expiryMs)
 					case 0xFD:
-						var expirySec int64
+						var expirySec int32
 						err := binary.Read(r.reader, binary.LittleEndian, &expirySec)
 						if err != nil {
 							panic(err)
 						}
-						redisValue.expireAt = time.Unix(expirySec * 1000, 0)
+						redisValue.expireAt = time.Unix(int64(expirySec), 0)
 					default:
 						r.reader.UnreadByte()
 					}
 				}
-			
+				valueType, err := r.reader.ReadByte()
+				fmt.Println("value type: ", valueType)
+				if err != nil {
+					fmt.Println("error reading value type: ", err)
+					panic(err)
+				}
+				// 0x00 value type is a string
+				key, err := r.readString()
+				if err != nil {
+					fmt.Println("error reading string value: ", err)
+					panic(err)
+				}
+				value, err := r.readString()
+				if err != nil {
+					fmt.Println("error reading value: ", err)
+					panic(err)
+				}
+				redisValue.value = value
 				_map.Store(key, redisValue)
 			}
 		}
@@ -175,7 +177,7 @@ func (r *RDB) readSpecialEncodedString(reader *bufio.Reader) (string, error) {
 	}
 	switch format {
 	// 8 bit integer string
-	case 0xC0:
+	case 0xC:
 		var b int8
 		err := binary.Read(reader, binary.LittleEndian, &b)
 		// read 8-bit integer
