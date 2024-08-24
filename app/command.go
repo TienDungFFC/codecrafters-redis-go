@@ -14,6 +14,7 @@ import (
 
 const (
 	TYPE_STRING valueType = "string"
+	TYPE_STREAM valueType = "stream"
 )
 type valueType string
 type store struct {
@@ -207,10 +208,26 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "type":
 		v, ok := _map.Load(strs[1])
 		if (!ok) {
-			h.Write(h.SimpleStringResponse("none"))
+			_, exist := stream[strs[1]]
+			if exist {
+				h.Write(h.SimpleStringResponse(string(TYPE_STREAM)))
+			} else {
+				h.Write(h.SimpleStringResponse("none"))
+			}
 		} else {
 			h.Write(h.SimpleStringResponse(string(v.(store).typ)))
 		}
+	case "xadd":
+		ss := NewStreamStore()
+		sKV := []StreamEntryValue{}
+		sKV = append(sKV, StreamEntryValue{
+			Key: strs[3],
+			Value: strs[4],
+		})
+		sEntry := NewStreamEntry(strs[1], sKV)
+		ss.entries = append(ss.entries, sEntry)
+		stream[strs[1]] = ss
+		h.Write(h.BulkStringResponse(strs[1]))
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
@@ -324,6 +341,10 @@ func (h *Handler) SimpleErrorResponse(err string) string {
 
 func (h *Handler) SimpleStringResponse(s string) string {
 	return fmt.Sprintf("+%s\r\n", s)
+}
+
+func (h *Handler) BulkStringResponse(s string) string {
+	return fmt.Sprintf("$%d\r\n%s\r\n", len(s), s)
 }
 
 func (h *Handler) EmptyArrayResponse() string {
