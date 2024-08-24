@@ -11,14 +11,11 @@ import (
 	"time"
 )
 
-<<<<<<< HEAD
 
 const (
 	TYPE_STRING valueType = "string"
 )
 type valueType string
-=======
->>>>>>> d2d9e3f23af363166c4094b2ce0d56fade7e0178
 type store struct {
 	typ	     valueType   
 	value    string
