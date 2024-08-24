@@ -227,7 +227,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		sEntry := NewStreamEntry(strs[1], sKV)
 		ss.entries = append(ss.entries, sEntry)
 		stream[strs[1]] = ss
-		h.Write(h.BulkStringResponse(strs[1]))
+		h.Write(h.BulkStringResponse(strs[2]))
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
