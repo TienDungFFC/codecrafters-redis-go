@@ -12,8 +12,12 @@ import (
 )
 
 
-
+const (
+	TYPE_STRING valueType = "string"
+)
+type valueType string
 type store struct {
+	typ	     valueType   
 	value    string
 	expireAt time.Time
 }
@@ -201,7 +205,15 @@ func (h *Handler) handleCommand(rawStr string) string {
 			return true
 		})
 		res := fmt.Sprintf("*%d\r\n%s\r\n", c, tmp)
-		h.Write(res)
+			h.Write(res)
+	
+	case "type":
+		v, ok := _map.Load(strs[1])
+		if (!ok) {
+			h.Write(h.SimpleStringResponse("none"))
+		} else {
+			h.Write(h.SimpleStringResponse(string(v.(store).typ)))
+		}
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
@@ -218,6 +230,7 @@ func handleSet(strs []string) {
 
 	stored := store{
 		value: value,
+		typ: TYPE_STRING,
 	}
 
 	if len(strs) > 2 {
