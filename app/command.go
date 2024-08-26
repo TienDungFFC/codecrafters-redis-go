@@ -229,6 +229,11 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.Write(h.SimpleErrorResponse(fmt.Sprint(err)))
 			return ""
 		}
+		now := time.Now().Unix()
+		eId := EntryId{
+			timestamp: int(now),
+			seq:       0,
+		}
 		if ok {
 
 			sKV := []StreamEntryValue{}
@@ -237,11 +242,14 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Value: val,
 			})
 
-			t, _ := ConverIdEntryInt(ids)
-			eId, ok := s.FindEntryId(t)
-			if ok {
-				eId.seq++
+			if id != "*" {
+				t, _ := ConverIdEntryInt(ids)
+				eId, ok := s.FindEntryId(t)
+				if ok {
+					eId.seq++
+				}
 			}
+
 			s.entries = append(s.entries, &StreamEntry{
 				Id: eId,
 				KV: sKV,

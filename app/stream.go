@@ -43,6 +43,9 @@ func NewStreamEntry(id EntryId, kv []StreamEntryValue) *StreamEntry {
 }
 
 func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
+	if id == "*" {
+		return true, nil
+	}
 	ids := strings.Split(id, "-")
 	lastMil := 0
 	lastSeq := 0
