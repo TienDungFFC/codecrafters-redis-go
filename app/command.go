@@ -295,7 +295,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			}
 			endIds := strings.Split(strs[3], "-")
 			if endIds[0] == strs[3] {
-				endIds[1] = "0"
+				// endIds[1] = "0"
 			}
 			sTimestamp, sSeq := ConverIdEntryInt(startIds)
 			if strs[2] == "-" {
