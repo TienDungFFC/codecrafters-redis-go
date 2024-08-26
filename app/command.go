@@ -264,20 +264,22 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Value: val,
 			})
 
-			eId := EntryId{}
-			if ids[1] == "*" {
-				t, _ := strconv.Atoi(ids[0])
-				se := 0
-				if t == 0 {
-					se = 1
+			if id != "*" && len(ids) > 1 {
+				if ids[1] == "*" {
+					t, _ := strconv.Atoi(ids[0])
+					se := 0
+					if t == 0 {
+						se = 1
+					}
+					eId.timestamp = t
+					eId.seq = se
+				} else {
+					t, se := ConverIdEntryInt(ids)
+					eId.timestamp = t
+					eId.seq = se
 				}
-				eId.timestamp = t
-				eId.seq = se
-			} else {
-				t, se := ConverIdEntryInt(ids)
-				eId.timestamp = t
-				eId.seq = se
 			}
+
 			sEntry := NewStreamEntry(eId, sKV)
 			ss.entries = append(ss.entries, sEntry)
 			ss.lastId = &eId
