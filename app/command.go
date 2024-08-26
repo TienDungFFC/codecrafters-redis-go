@@ -316,7 +316,8 @@ func (h *Handler) handleCommand(rawStr string) string {
 					eResp += "%2\r\n" + fmt.Sprintf("%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("%d\r\n", ckv*2) + kvRes
 				}
 			}
-			h.Write(fmt.Sprintf("%d\r\n%s", ce, eResp))
+			fmt.Println("eResp: ", eResp)
+			h.Write(fmt.Sprintf("*%d\r\n%s", ce, eResp))
 		} else {
 
 		}
