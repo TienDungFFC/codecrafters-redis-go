@@ -342,6 +342,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 				s, ok := stream[ks[i]]
 				argId := ids[i]
 				argMil, argSeq := ConverIdEntryInt(strings.Split(argId, "-"))
+				if len(ids) == 1 && ids[0] == "$"  {
+					argMil = s.lastId.timestamp
+					argSeq = s.lastId.seq
+				}
 				eResp := ""
 				if ok {
 					for _, entry := range s.entries {
