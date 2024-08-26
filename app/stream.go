@@ -45,8 +45,13 @@ func NewStreamEntry(id EntryId, kv []StreamEntryValue) *StreamEntry {
 func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	ids := strings.Split(id, "-")
 	mil, seq := ConverIdEntryInt(ids)
-	lastMil := s.lastId.timestamp
-	lastSeq := s.lastId.seq
+	lastMil := 0
+	lastSeq := 0
+
+	if s.lastId != nil {
+		lastMil = s.lastId.timestamp
+		lastSeq = s.lastId.seq
+	}
 	if ids[1] != "*" {
 		if mil == 0 && seq == 0 {
 			return false, errors.New("ERR The ID specified in XADD must be greater than 0-0")
