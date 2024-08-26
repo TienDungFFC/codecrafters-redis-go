@@ -237,6 +237,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Id: id,
 				KV: sKV,
 			})
+			h.Write(h.BulkStringResponse(id))
 		} else {
 			ss := NewStreamStore()
 			sKV := []StreamEntryValue{}
