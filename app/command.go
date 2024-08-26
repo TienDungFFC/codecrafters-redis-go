@@ -341,10 +341,14 @@ func (h *Handler) handleCommand(rawStr string) string {
 				ce := 0
 				s, ok := stream[ks[i]]
 				argId := ids[i]
-				argMil := s.lastId.timestamp
-				argSeq := s.lastId.seq
-				if len(ids) == 1 && ids[0] != "$"  {
+
+				argMil := int64(0)
+				argSeq := 0
+				if ids[0] != "$"  {
 					argMil, argSeq = ConverIdEntryInt(strings.Split(argId, "-"))
+				} else {
+					argMil = s.lastId.timestamp
+					argSeq = s.lastId.seq
 				}
 				eResp := ""
 				if ok {
