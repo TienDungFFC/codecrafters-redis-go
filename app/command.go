@@ -313,7 +313,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 						kvRes += h.BulkStringResponse(kv.Value)
 					}
 					sid := s.EntryIdToString(*entry.Id)
-					eResp += "*2\r\n" + fmt.Sprintf("%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("%d\r\n", ckv*2) + kvRes
+					eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("%d\r\n", ckv*2) + kvRes
 				}
 			}
 			fmt.Println("eResp: ", eResp)
