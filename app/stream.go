@@ -59,6 +59,8 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 			return false, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 	}
+	fmt.Println("check last mil: ", lastMil)
+	fmt.Println("check last seq: ", lastSeq)
 
 	return true, nil
 }
