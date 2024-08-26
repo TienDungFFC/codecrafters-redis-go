@@ -246,14 +246,15 @@ func (h *Handler) handleCommand(rawStr string) string {
 			if id != "*" {
 				t, _ := strconv.ParseInt(ids[0], 10, 64)
 				eId, ok = s.FindEntryId(t)
-				if ok {
-					fmt.Println("eid: ", eId)
+				if ok && ids[1] == "*" {
 					eId.seq = eId.seq + 1
+				} else if ids[1] != "*" {
+					eId.seq, _ = strconv.Atoi(ids[1])
 				}
-				fmt.Println("eid 1: ", &eId)
+				fmt.Println("eid 1: ", eId)
 			}
 
-			fmt.Println("eid 2: ", &eId)
+			fmt.Println("eid 2: ", eId)
 			s.entries = append(s.entries, &StreamEntry{
 				Id: &eId,
 				KV: sKV,
