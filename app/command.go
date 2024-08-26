@@ -27,7 +27,7 @@ type Command struct {
 	Raw  string
 	Args []string
 }
-var lastId = &EntryId{}
+var lastId = EntryId{}
 var lock sync.Mutex
 var _map sync.Map
 var (
@@ -259,7 +259,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				KV: sKV,
 			})
 			s.lastId = &eId
-			lastId = &eId
+			lastId = eId
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		} else {
 			ss := NewStreamStore()
@@ -282,7 +282,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			sEntry := NewStreamEntry(eId, sKV)
 			ss.entries = append(ss.entries, sEntry)
 			ss.lastId = &eId
-			lastId = &eId
+			lastId = eId
 			stream[strs[1]] = ss
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		}
@@ -352,7 +352,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 					argMil = lastId.timestamp
 					argSeq = lastId.seq
 				}
-				fmt.Println("argMil: ", *lastId)
 				eResp := ""
 				if ok {
 					for _, entry := range s.entries {
@@ -384,8 +383,8 @@ func (h *Handler) handleCommand(rawStr string) string {
 			durMS, _ := strconv.Atoi(strs[2])
 			if durMS == 0 {
 				xread = func() {
-					fmt.Println("lastId: ", *lastId)
-					xreadresponder(strs[4:], lastId)
+					fmt.Println("lastId: ", lastId)
+					xreadresponder(strs[4:], &lastId)
 				} 
 			} else {
 				time.AfterFunc(time.Duration(durMS)*time.Millisecond, func() {
