@@ -38,7 +38,7 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	mil, seq, _ := SplitIdEntry(id)
 	lastMil, lastSeq, _ := SplitIdEntry(s.lastId)
 	if mil == 0 && seq == 0 {
-		return false, errors.New("The ID specified in XADD must be greater than 0-0")
+		return false, errors.New("ERR The ID specified in XADD must be greater than 0-0")
 	} else if mil < lastMil || (mil == lastMil && seq <= lastSeq) {
 		return false, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 	}
