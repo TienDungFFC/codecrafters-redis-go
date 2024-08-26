@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-
 const (
 	TYPE_STRING valueType = "string"
 	TYPE_STREAM valueType = "stream"
 )
+
 type valueType string
 type store struct {
-	typ	     valueType   
+	typ      valueType
 	value    string
 	expireAt time.Time
 }
@@ -204,10 +204,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 		})
 		res := fmt.Sprintf("*%d\r\n%s", c, tmp)
 		h.Write(res)
-	
+
 	case "type":
 		v, ok := _map.Load(strs[1])
-		if (!ok) {
+		if !ok {
 			_, exist := stream[strs[1]]
 			if exist {
 				h.Write(h.SimpleStringResponse(string(TYPE_STREAM)))
@@ -218,16 +218,39 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.Write(h.SimpleStringResponse(string(v.(store).typ)))
 		}
 	case "xadd":
-		ss := NewStreamStore()
-		sKV := []StreamEntryValue{}
-		sKV = append(sKV, StreamEntryValue{
-			Key: strs[3],
-			Value: strs[4],
-		})
-		sEntry := NewStreamEntry(strs[1], sKV)
-		ss.entries = append(ss.entries, sEntry)
-		stream[strs[1]] = ss
-		h.Write(h.BulkStringResponse(strs[2]))
+		id := strs[1]
+		s, ok := stream[strs[1]]
+		key := strs[3]
+		val := strs[4]
+		if ok {
+			_, err := s.ValidateEntryId(id)
+			if err != nil {
+				h.Write(h.SimpleErrorResponse(fmt.Sprint(err)))
+				return ""
+			}
+			sKV := []StreamEntryValue{}
+			sKV = append(sKV, StreamEntryValue{
+				Key:   key,
+				Value: val,
+			})
+			s.entries = append(s.entries, &StreamEntry{
+				Id: id,
+				KV: sKV,
+			})
+		} else {
+			ss := NewStreamStore()
+			sKV := []StreamEntryValue{}
+			sKV = append(sKV, StreamEntryValue{
+				Key:   key,
+				Value: val,
+			})
+
+			sEntry := NewStreamEntry(strs[1], sKV)
+			ss.entries = append(ss.entries, sEntry)
+			ss.lastId = id
+			stream[strs[1]] = ss
+			h.Write(h.BulkStringResponse(strs[2]))
+		}
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
@@ -244,7 +267,7 @@ func handleSet(strs []string) {
 
 	stored := store{
 		value: value,
-		typ: TYPE_STRING,
+		typ:   TYPE_STRING,
 	}
 
 	if len(strs) > 2 {
