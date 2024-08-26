@@ -357,7 +357,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 					for _, entry := range s.entries {
 						kvRes := ""
 						ckv := 0
-						if entry.Id.timestamp + int64(entry.Id.seq) >= argMil + int64(argSeq) {
+						if entry.Id.timestamp + int64(entry.Id.seq) > argMil + int64(argSeq) {
 							existKey = true
 							ce++
 							for _, kv := range entry.KV {
