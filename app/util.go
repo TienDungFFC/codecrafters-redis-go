@@ -72,13 +72,8 @@ func ptr[T any](t T) *T {
 	return &t
 }
 
-func SplitIdEntry(id string) (mil int, seq int, err error) {
-	ids := strings.Split(id, "-")
-	err = nil
-	if len(ids) == 1 && ids[0] == id {
-		return 0, 0, fmt.Errorf("Invalid id: %s", id)
-	}
+func ConverIdEntryInt(ids []string) (mil int, seq int) {
 	mil, _ = strconv.Atoi(ids[0])
 	seq, _ = strconv.Atoi(ids[1])
-	return mil, seq, nil
+	return mil, seq
 }

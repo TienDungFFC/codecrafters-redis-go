@@ -2,6 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 var stream = make(map[string]*StreamStore)
@@ -11,23 +14,28 @@ type StreamEntryValue struct {
 	Value string
 }
 
+type EntryId struct {
+	timestamp int
+	seq       int
+}
+
 type StreamEntry struct {
-	Id string
+	Id EntryId
 	KV []StreamEntryValue
 }
 type StreamStore struct {
 	entries []*StreamEntry
-	lastId  string
+	lastId  *EntryId
 }
 
 func NewStreamStore() *StreamStore {
 	return &StreamStore{
 		entries: make([]*StreamEntry, 0),
-		lastId:  "0-0",
+		lastId:  nil,
 	}
 }
 
-func NewStreamEntry(id string, kv []StreamEntryValue) *StreamEntry {
+func NewStreamEntry(id EntryId, kv []StreamEntryValue) *StreamEntry {
 	return &StreamEntry{
 		Id: id,
 		KV: kv,
@@ -35,12 +43,36 @@ func NewStreamEntry(id string, kv []StreamEntryValue) *StreamEntry {
 }
 
 func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
-	mil, seq, _ := SplitIdEntry(id)
-	lastMil, lastSeq, _ := SplitIdEntry(s.lastId)
+	ids := strings.Split(id, "-")
+	mil, seq := ConverIdEntryInt(ids)
+	lastMil := s.lastId.timestamp
+	lastSeq := s.lastId.seq
 	if mil == 0 && seq == 0 {
 		return false, errors.New("ERR The ID specified in XADD must be greater than 0-0")
-	} else if mil < lastMil || (mil == lastMil && seq <= lastSeq) {
+	} else if (mil < lastMil || (mil == lastMil && seq <= lastSeq)) && ids[1] != "*" {
 		return false, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 	}
 	return true, nil
+}
+
+func (s *StreamStore) FindEntryId(t int) (eId EntryId, ok bool) {
+	eId = EntryId{
+		timestamp: t,
+		seq:       0,
+	}
+	ok = false
+	for _, entry := range s.entries {
+		if entry.Id.timestamp == t {
+			ok = true
+			eId = entry.Id
+			break
+		}
+	}
+	return
+}
+
+func (s *StreamStore) EntryIdToString(id EntryId) string {
+	ts := strconv.Itoa(id.timestamp)
+	ses := strconv.Itoa(id.seq)
+	return fmt.Sprintf("%s:%s", ts, ses)
 }

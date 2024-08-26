@@ -222,23 +222,32 @@ func (h *Handler) handleCommand(rawStr string) string {
 		s, ok := stream[strs[1]]
 		key := strs[3]
 		val := strs[4]
+		ids := strings.Split(id, "-")
+
+		_, err := s.ValidateEntryId(id)
+		if err != nil {
+			h.Write(h.SimpleErrorResponse(fmt.Sprint(err)))
+			return ""
+		}
 		if ok {
-			_, err := s.ValidateEntryId(id)
-			if err != nil {
-				h.Write(h.SimpleErrorResponse(fmt.Sprint(err)))
-				return ""
-			}
+
 			sKV := []StreamEntryValue{}
 			sKV = append(sKV, StreamEntryValue{
 				Key:   key,
 				Value: val,
 			})
+
+			t, _ := ConverIdEntryInt(ids)
+			eId, ok := s.FindEntryId(t)
+			if ok {
+				eId.seq++
+			}
 			s.entries = append(s.entries, &StreamEntry{
-				Id: id,
+				Id: eId,
 				KV: sKV,
 			})
-			s.lastId = id
-			h.Write(h.BulkStringResponse(id))
+			s.lastId = &eId
+			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		} else {
 			ss := NewStreamStore()
 			sKV := []StreamEntryValue{}
@@ -247,11 +256,29 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Value: val,
 			})
 
-			sEntry := NewStreamEntry(strs[1], sKV)
+			eId := EntryId{}
+			if ids[1] == "*" {
+				t, _ := strconv.Atoi(ids[0])
+				se := 0
+				if t == 0 {
+					se = 1
+				}
+				eId = EntryId{
+					timestamp: t,
+					seq:       se,
+				}
+			} else {
+				t, se := ConverIdEntryInt(ids)
+				eId = EntryId{
+					timestamp: t,
+					seq:       se,
+				}
+			}
+			sEntry := NewStreamEntry(eId, sKV)
 			ss.entries = append(ss.entries, sEntry)
-			ss.lastId = id
+			ss.lastId = &eId
 			stream[strs[1]] = ss
-			h.Write(h.BulkStringResponse(strs[2]))
+			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		}
 	}
 
