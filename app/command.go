@@ -237,6 +237,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Id: id,
 				KV: sKV,
 			})
+			s.lastId = id
 			h.Write(h.BulkStringResponse(id))
 		} else {
 			ss := NewStreamStore()
