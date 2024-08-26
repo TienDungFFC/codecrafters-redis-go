@@ -352,7 +352,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 					argMil = lastId.timestamp
 					argSeq = lastId.seq
 				}
-				fmt.Println("argMil: ", *s.lastId)
+				fmt.Println("argMil: ", *lastId)
 				eResp := ""
 				if ok {
 					for _, entry := range s.entries {
