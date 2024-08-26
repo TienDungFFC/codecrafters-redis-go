@@ -77,5 +77,5 @@ func (s *StreamStore) FindEntryId(t int) (eId EntryId, ok bool) {
 func (s *StreamStore) EntryIdToString(id EntryId) string {
 	ts := strconv.Itoa(id.timestamp)
 	ses := strconv.Itoa(id.seq)
-	return fmt.Sprintf("%s:%s", ts, ses)
+	return fmt.Sprintf("%s-%s", ts, ses)
 }
