@@ -73,6 +73,7 @@ func ptr[T any](t T) *T {
 }
 
 func ConverIdEntryInt(ids []string) (mil int64, seq int) {
+	fmt.Println("ids: ", ids)
 	mil, _ = strconv.ParseInt(ids[0], 10, 64)
 	seq, _ = strconv.Atoi(ids[1])
 	return mil, seq
