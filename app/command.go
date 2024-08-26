@@ -250,8 +250,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 					fmt.Println("eid: ", eId)
 					eId.seq = eId.seq + 1
 				}
+				fmt.Println("eid 1: ", &eId)
 			}
 
+			fmt.Println("eid 2: ", &eId)
 			s.entries = append(s.entries, &StreamEntry{
 				Id: &eId,
 				KV: sKV,
