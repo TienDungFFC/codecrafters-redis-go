@@ -263,16 +263,12 @@ func (h *Handler) handleCommand(rawStr string) string {
 				if t == 0 {
 					se = 1
 				}
-				eId = EntryId{
-					timestamp: t,
-					seq:       se,
-				}
+				eId.timestamp = t
+				eId.seq = se
 			} else {
 				t, se := ConverIdEntryInt(ids)
-				eId = EntryId{
-					timestamp: t,
-					seq:       se,
-				}
+				eId.timestamp = t
+				eId.seq = se
 			}
 			sEntry := NewStreamEntry(eId, sKV)
 			ss.entries = append(ss.entries, sEntry)
