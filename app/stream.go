@@ -40,7 +40,7 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	if mil == 0 && seq == 0 {
 		return false, errors.New("The ID specified in XADD must be greater than 0-0")
 	} else if mil < lastMil || (mil == lastMil && seq <= lastSeq) {
-		return false, errors.New("The ID specified in XADD is equal or smaller than the target stream top item")
+		return false, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 	}
 	return true, nil
 }
