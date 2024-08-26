@@ -288,6 +288,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "xrange":
 		s, ok := stream[strs[1]]
 		if ok {
+			rte := false
 			startIds := strings.Split(strs[2], "-")
 			if startIds[0] == strs[2] {
 				startIds[1] = "0"
@@ -297,24 +298,32 @@ func (h *Handler) handleCommand(rawStr string) string {
 				endIds[1] = "0"
 			}
 			sTimestamp, sSeq := ConverIdEntryInt(startIds)
+			if strs[2] == "-" {
+				sTimestamp = 0
+				sSeq = 0
+			}
 			eTimestamp, eSeq := ConverIdEntryInt(endIds)
-
+			if strs[3] == "+" {
+				rte = true
+			}
 			ce := 0
 			eResp := ""
 
 			for _, entry := range s.entries {
 				kvRes := ""
 				ckv := 0
-				if entry.Id.timestamp+int64(entry.Id.seq) >= sTimestamp+int64(sSeq) && entry.Id.timestamp+int64(entry.Id.seq) <= eTimestamp+int64(eSeq) {
-					ce++
-					for _, kv := range entry.KV {
-						ckv++
-						kvRes += h.BulkStringResponse(kv.Key)
-						kvRes += h.BulkStringResponse(kv.Value)
+					if entry.CheckRangeQuery(EntryId{timestamp: sTimestamp, seq: sSeq}, EntryId{timestamp: eTimestamp, seq: eSeq}, rte) {
+						ce++
+						for _, kv := range entry.KV {
+							ckv++
+							kvRes += h.BulkStringResponse(kv.Key)
+							kvRes += h.BulkStringResponse(kv.Value)
+						}
+						sid := s.EntryIdToString(*entry.Id)
+						eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
 					}
-					sid := s.EntryIdToString(*entry.Id)
-					eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
 				}
+
 			}
 			fmt.Println("eResp: ", eResp)
 			h.Write(fmt.Sprintf("*%d\r\n%s", ce, eResp))

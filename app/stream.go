@@ -88,3 +88,12 @@ func (s *StreamStore) EntryIdToString(id EntryId) string {
 	ses := strconv.Itoa(id.seq)
 	return fmt.Sprintf("%s-%s", ts, ses)
 }
+
+func (e *StreamEntry) CheckRangeQuery(sEntry EntryId, eEntry EntryId, rte bool) bool {
+	if rte && e.Id.timestamp+int64(e.Id.seq) >= sEntry.timestamp+int64(sEntry.seq) {
+		return true
+	} else if e.Id.timestamp+int64(e.Id.seq) >= sEntry.timestamp+int64(sEntry.seq) && e.Id.timestamp+int64(e.Id.seq) <= eEntry.timestamp+int64(eEntry.seq) {
+		return true
+	}
+	return false
+}
