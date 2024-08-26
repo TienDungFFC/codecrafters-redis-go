@@ -325,41 +325,50 @@ func (h *Handler) handleCommand(rawStr string) string {
 			return ""
 		}
 	case "xread":
-		streams := strs[2:]
-		ls := len(streams)
-		mid := ls / 2
-		ks := streams[:mid]
-		ids := streams[mid:]
+		xreadresponder := func(streams []string) {
 
-		kResp := ""
-		for i := 0; i < len(ks); i++ {
-			ce := 0
-			s, ok := stream[ks[i]]
-			argId := ids[i]
-			argMil, argSeq := ConverIdEntryInt(strings.Split(argId, "-"))
-			eResp := ""
-			if ok {
-				for _, entry := range s.entries {
-					kvRes := ""
-					ckv := 0
+			ls := len(streams)
+			mid := ls / 2
+			ks := streams[:mid]
+			ids := streams[mid:]
 
-					if entry.Id.timestamp + int64(entry.Id.seq) > argMil + int64(argSeq) {
-						ce++
-						for _, kv := range entry.KV {
-							ckv++
-							kvRes += h.BulkStringResponse(kv.Key)
-							kvRes += h.BulkStringResponse(kv.Value)
+			kResp := ""
+			for i := 0; i < len(ks); i++ {
+				ce := 0
+				s, ok := stream[ks[i]]
+				argId := ids[i]
+				argMil, argSeq := ConverIdEntryInt(strings.Split(argId, "-"))
+				eResp := ""
+				if ok {
+					for _, entry := range s.entries {
+						kvRes := ""
+						ckv := 0
+						if entry.Id.timestamp + int64(entry.Id.seq) > argMil + int64(argSeq) {
+							ce++
+							for _, kv := range entry.KV {
+								ckv++
+								kvRes += h.BulkStringResponse(kv.Key)
+								kvRes += h.BulkStringResponse(kv.Value)
+							}
+							sid := s.EntryIdToString(*entry.Id)
+							eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
 						}
-						sid := s.EntryIdToString(*entry.Id)
-						eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
 					}
 				}
+				kResp += fmt.Sprintf("*2\r\n%s", fmt.Sprintf("$%d\r\n%s\r\n", len(ks[i]), ks[i]) + fmt.Sprintf("*%d\r\n%s", ce, eResp))
 			}
-			kResp += fmt.Sprintf("*2\r\n%s", fmt.Sprintf("$%d\r\n%s\r\n", len(ks[i]), ks[i]) + fmt.Sprintf("*%d\r\n%s", ce, eResp))
+			qResp := fmt.Sprintf("*%d\r\n%s", len(ks), kResp)
+			fmt.Println("qRest: ", qResp)
+			h.Write(qResp) 
 		}
-		qResp := fmt.Sprintf("*%d\r\n%s", len(ks), kResp)
-		fmt.Println("qRest: ", qResp)
-		h.Write(qResp) 
+		if strings.EqualFold(strs[1], "block") {
+			durMS, _ := strconv.Atoi(strs[2])
+			time.AfterFunc(time.Duration(durMS)*time.Millisecond, func() {
+				xreadresponder(strs[4:])
+			})
+		} else {
+			xreadresponder(strs[2:])
+		}
 	}
 
 	if !_metaInfo.isMaster() && shouldUpdateByte {
