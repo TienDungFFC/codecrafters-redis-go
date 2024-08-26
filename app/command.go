@@ -33,6 +33,7 @@ var _map sync.Map
 var (
 	ackReceived = make(chan bool)
 )
+var xread func()
 
 func (h *Handler) handleCommand(rawStr string) string {
 	conn := h.conn
@@ -221,8 +222,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 		id := strs[2]
 		s, ok := stream[strs[1]]
 		rest := strs[3:]
-		// key := strs[3]
-		// val := strs[4]
 		sKV := []StreamEntryValue{}
 		for i := 0; i < len(rest); i += 2 {
 			sKV = append(sKV, StreamEntryValue{
@@ -284,6 +283,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 			ss.lastId = &eId
 			stream[strs[1]] = ss
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
+		}
+		if xread != nil {
+			xread()
+			xread = nil
 		}
 	case "xrange":
 		s, ok := stream[strs[1]]
@@ -368,9 +371,15 @@ func (h *Handler) handleCommand(rawStr string) string {
 		}
 		if strings.EqualFold(strs[1], "block") {
 			durMS, _ := strconv.Atoi(strs[2])
-			time.AfterFunc(time.Duration(durMS)*time.Millisecond, func() {
-				xreadresponder(strs[4:])
-			})
+			if durMS == 0 {
+				xread = func() {
+					xreadresponder(strs[4:])
+				} 
+			} else {
+				time.AfterFunc(time.Duration(durMS)*time.Millisecond, func() {
+					xreadresponder(strs[4:])
+				})
+			}
 		} else {
 			xreadresponder(strs[2:])
 		}
