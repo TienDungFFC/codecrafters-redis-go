@@ -259,8 +259,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 				KV: sKV,
 			})
 			s.lastId = &eId
-						lastId.timestamp = eId.timestamp
-			lastId.timestamp = int64(eId.seq)
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		} else {
 			ss := NewStreamStore()
