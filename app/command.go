@@ -247,6 +247,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				t, _ := strconv.ParseInt(ids[0], 10, 64)
 				eId, ok = s.FindEntryId(t)
 				if ok {
+					fmt.Println("eid: ", eId)
 					eId.seq++
 				}
 			}
