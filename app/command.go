@@ -303,10 +303,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 			eResp := ""
 
 			for _, entry := range s.entries {
-				ce++
 				kvRes := ""
 				ckv := 0
 				if entry.Id.timestamp+int64(entry.Id.seq) >= sTimestamp+int64(sSeq) && entry.Id.timestamp+int64(entry.Id.seq) <= eTimestamp+int64(eSeq) {
+					ce++
 					for _, kv := range entry.KV {
 						ckv++
 						kvRes += h.BulkStringResponse(kv.Key)
@@ -317,7 +317,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 				}
 			}
 			fmt.Println("eResp: ", eResp)
-			h.Write(fmt.Sprintf("*%d\r\n%s", ce, "23"))
+			h.Write(fmt.Sprintf("*%d\r\n%s", ce, eResp))
 			return ""
 		}
 	}
