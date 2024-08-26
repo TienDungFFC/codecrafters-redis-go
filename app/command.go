@@ -384,6 +384,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			durMS, _ := strconv.Atoi(strs[2])
 			if durMS == 0 {
 				xread = func() {
+					fmt.Println("lastId: ", *lastId)
 					xreadresponder(strs[4:], lastId)
 				} 
 			} else {
