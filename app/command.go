@@ -333,6 +333,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			ids := streams[mid:]
 
 			kResp := ""
+			existKey := false
 			for i := 0; i < len(ks); i++ {
 				ce := 0
 				s, ok := stream[ks[i]]
@@ -344,6 +345,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 						kvRes := ""
 						ckv := 0
 						if entry.Id.timestamp + int64(entry.Id.seq) > argMil + int64(argSeq) {
+							existKey = true
 							ce++
 							for _, kv := range entry.KV {
 								ckv++
@@ -357,7 +359,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 				}
 				kResp += fmt.Sprintf("*2\r\n%s", fmt.Sprintf("$%d\r\n%s\r\n", len(ks[i]), ks[i]) + fmt.Sprintf("*%d\r\n%s", ce, eResp))
 			}
-			qResp := fmt.Sprintf("*%d\r\n%s", len(ks), kResp)
+			qResp := h.NullBulkString()
+			if (existKey) {
+				qResp = fmt.Sprintf("*%d\r\n%s", len(ks), kResp)
+			}
 			fmt.Println("qRest: ", qResp)
 			h.Write(qResp) 
 		}
@@ -494,6 +499,10 @@ func (h *Handler) EmptyArrayResponse() string {
 
 func (h *Handler) QueuedResponse() string {
 	return "+QUEUED\r\n"
+}
+
+func (h *Handler) NullBulkString() string {
+	return "$-1\r\n";
 }
 
 func (h *Handler) ArrayResponse(responses []string) string {
