@@ -15,7 +15,7 @@ type StreamEntryValue struct {
 }
 
 type EntryId struct {
-	timestamp int
+	timestamp int64
 	seq       int
 }
 
@@ -47,7 +47,7 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 		return true, nil
 	}
 	ids := strings.Split(id, "-")
-	lastMil := 0
+	var lastMil int64 = 0
 	lastSeq := 0
 
 	if s != nil && s.lastId != nil {
@@ -67,7 +67,7 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	return true, nil
 }
 
-func (s *StreamStore) FindEntryId(t int) (eId EntryId, ok bool) {
+func (s *StreamStore) FindEntryId(t int64) (eId EntryId, ok bool) {
 	eId = EntryId{
 		timestamp: t,
 		seq:       0,
@@ -84,7 +84,7 @@ func (s *StreamStore) FindEntryId(t int) (eId EntryId, ok bool) {
 }
 
 func (s *StreamStore) EntryIdToString(id EntryId) string {
-	ts := strconv.Itoa(id.timestamp)
+	ts := strconv.FormatInt(id.timestamp, 10)
 	ses := strconv.Itoa(id.seq)
 	return fmt.Sprintf("%s-%s", ts, ses)
 }

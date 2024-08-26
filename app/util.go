@@ -72,8 +72,8 @@ func ptr[T any](t T) *T {
 	return &t
 }
 
-func ConverIdEntryInt(ids []string) (mil int, seq int) {
-	mil, _ = strconv.Atoi(ids[0])
+func ConverIdEntryInt(ids []string) (mil int64, seq int) {
+	mil, _ = strconv.ParseInt(ids[0], 10, 64)
 	seq, _ = strconv.Atoi(ids[1])
 	return mil, seq
 }

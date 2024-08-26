@@ -231,7 +231,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 		}
 		now := time.Now().Unix()
 		eId := EntryId{
-			timestamp: int(now),
+			timestamp: now,
 			seq:       0,
 		}
 		if ok {
@@ -271,11 +271,11 @@ func (h *Handler) handleCommand(rawStr string) string {
 					if t == 0 {
 						se = 1
 					}
-					eId.timestamp = t
+					eId.timestamp = int64(t)
 					eId.seq = se
 				} else {
 					t, se := ConverIdEntryInt(ids)
-					eId.timestamp = t
+					eId.timestamp = int64(t)
 					eId.seq = se
 				}
 			}
