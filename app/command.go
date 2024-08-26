@@ -229,7 +229,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.Write(h.SimpleErrorResponse(fmt.Sprint(err)))
 			return ""
 		}
-		now := time.Now().Unix()
+		now := time.Now().UnixMilli()
 		eId := EntryId{
 			timestamp: now,
 			seq:       0,
