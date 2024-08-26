@@ -312,16 +312,15 @@ func (h *Handler) handleCommand(rawStr string) string {
 			for _, entry := range s.entries {
 				kvRes := ""
 				ckv := 0
-					if entry.CheckRangeQuery(EntryId{timestamp: sTimestamp, seq: sSeq}, EntryId{timestamp: eTimestamp, seq: eSeq}, rte) {
-						ce++
-						for _, kv := range entry.KV {
-							ckv++
-							kvRes += h.BulkStringResponse(kv.Key)
-							kvRes += h.BulkStringResponse(kv.Value)
-						}
-						sid := s.EntryIdToString(*entry.Id)
-						eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
+				if entry.CheckRangeQuery(EntryId{timestamp: sTimestamp, seq: sSeq}, EntryId{timestamp: eTimestamp, seq: eSeq}, rte) {
+					ce++
+					for _, kv := range entry.KV {
+						ckv++
+						kvRes += h.BulkStringResponse(kv.Key)
+						kvRes += h.BulkStringResponse(kv.Value)
 					}
+					sid := s.EntryIdToString(*entry.Id)
+					eResp += "*2\r\n" + fmt.Sprintf("$%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("*%d\r\n", ckv*2) + kvRes
 				}
 
 			}
