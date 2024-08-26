@@ -355,10 +355,10 @@ func (h *Handler) handleCommand(rawStr string) string {
 					}
 				}
 			}
-
-			kResp += fmt.Sprintf("*2\r\n%s", fmt.Sprintf("*%d\r\n%s", ce, eResp))
+			kResp += fmt.Sprintf("*2\r\n%s",  fmt.Sprintf("*%d\r\n%s", ce, eResp))
 		}
 		qResp := fmt.Sprintf("*%d\r\n%s", len(ks), kResp)
+		fmt.Println("qRest: ", qResp)
 		h.Write(qResp) 
 	}
 
