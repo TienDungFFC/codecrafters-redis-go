@@ -318,6 +318,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			}
 			fmt.Println("eResp: ", eResp)
 			h.Write(fmt.Sprintf("*%d\r\n%s", ce, eResp))
+			return ""
 		}
 	}
 
