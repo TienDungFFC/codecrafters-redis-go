@@ -288,23 +288,19 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "xrange":
 		s, ok := stream[strs[1]]
 		if ok {
-			rte := false
+			rte := true
 			startIds := strings.Split(strs[2], "-")
-			if startIds[0] == strs[2] {
-				startIds[1] = "0"
-			}
 			endIds := strings.Split(strs[3], "-")
-			if endIds[0] == strs[3] {
-				// endIds[1] = "0"
+			sTimestamp := int64(0)
+			sSeq := 0
+			eTimestamp := int64(0)
+			eSeq := 0
+			if strs[2] != "-" && len(startIds) == 2 {
+				sTimestamp, sSeq = ConverIdEntryInt(startIds)
 			}
-			sTimestamp, sSeq := ConverIdEntryInt(startIds)
-			if strs[2] == "-" {
-				sTimestamp = 0
-				sSeq = 0
-			}
-			eTimestamp, eSeq := ConverIdEntryInt(endIds)
-			if strs[3] == "+" {
-				rte = true
+			if strs[3] != "+" && len(endIds) == 2 {
+				eTimestamp, eSeq = ConverIdEntryInt(endIds)
+				rte = false
 			}
 			ce := 0
 			eResp := ""
