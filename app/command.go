@@ -248,12 +248,12 @@ func (h *Handler) handleCommand(rawStr string) string {
 				eId, ok = s.FindEntryId(t)
 				if ok {
 					fmt.Println("eid: ", eId)
-					eId.seq++
+					eId.seq = eId.seq + 1
 				}
 			}
 
 			s.entries = append(s.entries, &StreamEntry{
-				Id: eId,
+				Id: &eId,
 				KV: sKV,
 			})
 			s.lastId = &eId
@@ -309,7 +309,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 						kvRes += h.BulkStringResponse(kv.Key)
 						kvRes += h.BulkStringResponse(kv.Value)
 					}
-					sid := s.EntryIdToString(entry.Id)
+					sid := s.EntryIdToString(*entry.Id)
 					eResp += "%2\r\n" + fmt.Sprintf("%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("%d\r\n", ckv*2) + kvRes
 				}
 			}

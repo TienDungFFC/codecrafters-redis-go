@@ -20,7 +20,7 @@ type EntryId struct {
 }
 
 type StreamEntry struct {
-	Id EntryId
+	Id *EntryId
 	KV []StreamEntryValue
 }
 type StreamStore struct {
@@ -37,7 +37,7 @@ func NewStreamStore() *StreamStore {
 
 func NewStreamEntry(id EntryId, kv []StreamEntryValue) *StreamEntry {
 	return &StreamEntry{
-		Id: id,
+		Id: &id,
 		KV: kv,
 	}
 }
@@ -76,7 +76,7 @@ func (s *StreamStore) FindEntryId(t int64) (eId EntryId, ok bool) {
 	for _, entry := range s.entries {
 		if entry.Id.timestamp == t {
 			ok = true
-			eId = entry.Id
+			eId = *entry.Id
 			break
 		}
 	}
