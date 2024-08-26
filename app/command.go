@@ -220,8 +220,16 @@ func (h *Handler) handleCommand(rawStr string) string {
 	case "xadd":
 		id := strs[2]
 		s, ok := stream[strs[1]]
-		key := strs[3]
-		val := strs[4]
+		rest := strs[3:]
+		// key := strs[3]
+		// val := strs[4]
+		sKV := []StreamEntryValue{}
+		for i := 0; i < len(rest); i += 2 {
+			sKV = append(sKV, StreamEntryValue{
+				Key:   rest[i],
+				Value: rest[i+1],
+			})
+		}
 		ids := strings.Split(id, "-")
 
 		_, err := s.ValidateEntryId(id)
@@ -235,13 +243,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 			seq:       0,
 		}
 		if ok {
-
-			sKV := []StreamEntryValue{}
-			sKV = append(sKV, StreamEntryValue{
-				Key:   key,
-				Value: val,
-			})
-
 			if id != "*" {
 				t, _ := strconv.ParseInt(ids[0], 10, 64)
 				eId, ok = s.FindEntryId(t)
@@ -258,12 +259,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		} else {
 			ss := NewStreamStore()
-			sKV := []StreamEntryValue{}
-			sKV = append(sKV, StreamEntryValue{
-				Key:   key,
-				Value: val,
-			})
-
 			if id != "*" && len(ids) > 1 {
 				if ids[1] == "*" {
 					t, _ := strconv.Atoi(ids[0])
@@ -285,6 +280,41 @@ func (h *Handler) handleCommand(rawStr string) string {
 			ss.lastId = &eId
 			stream[strs[1]] = ss
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
+		}
+	case "xrange":
+		s, ok := stream[strs[1]]
+		if ok {
+			startIds := strings.Split(strs[2], "-")
+			if startIds[0] == strs[2] {
+				startIds[1] = "0"
+			}
+			endIds := strings.Split(strs[3], "-")
+			if endIds[0] == strs[3] {
+				endIds[1] = "0"
+			}
+			sTimestamp, sSeq := ConverIdEntryInt(startIds)
+			eTimestamp, eSeq := ConverIdEntryInt(endIds)
+
+			ce := 0
+			eResp := ""
+
+			for _, entry := range s.entries {
+				ce++
+				kvRes := ""
+				ckv := 0
+				if entry.Id.timestamp+int64(entry.Id.seq) >= sTimestamp+int64(sSeq) && entry.Id.timestamp+int64(entry.Id.seq) <= eTimestamp+int64(eSeq) {
+					for _, kv := range entry.KV {
+						ckv++
+						kvRes += h.BulkStringResponse(kv.Key)
+						kvRes += h.BulkStringResponse(kv.Value)
+					}
+					sid := s.EntryIdToString(entry.Id)
+					eResp += "%2\r\n" + fmt.Sprintf("%d\r\n%s\r\n", len(sid), sid) + fmt.Sprintf("%d\r\n", ckv*2) + kvRes
+				}
+			}
+			h.Write(fmt.Sprintf("%d\r\n%s", ce, eResp))
+		} else {
+
 		}
 	}
 
