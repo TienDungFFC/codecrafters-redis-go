@@ -218,7 +218,7 @@ func (h *Handler) handleCommand(rawStr string) string {
 			h.Write(h.SimpleStringResponse(string(v.(store).typ)))
 		}
 	case "xadd":
-		id := strs[1]
+		id := strs[2]
 		s, ok := stream[strs[1]]
 		key := strs[3]
 		val := strs[4]
