@@ -44,7 +44,6 @@ func NewStreamEntry(id EntryId, kv []StreamEntryValue) *StreamEntry {
 
 func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	ids := strings.Split(id, "-")
-	mil, seq := ConverIdEntryInt(ids)
 	lastMil := 0
 	lastSeq := 0
 
@@ -53,14 +52,13 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 		lastSeq = s.lastId.seq
 	}
 	if ids[1] != "*" {
+		mil, seq := ConverIdEntryInt(ids)
 		if mil == 0 && seq == 0 {
 			return false, errors.New("ERR The ID specified in XADD must be greater than 0-0")
 		} else if mil < lastMil || (mil == lastMil && seq <= lastSeq) {
 			return false, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 	}
-	fmt.Println("check last mil: ", lastMil)
-	fmt.Println("check last seq: ", lastSeq)
 
 	return true, nil
 }
