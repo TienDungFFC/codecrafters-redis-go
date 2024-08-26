@@ -259,7 +259,6 @@ func (h *Handler) handleCommand(rawStr string) string {
 				KV: sKV,
 			})
 			s.lastId = &eId
-			lastId = eId
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		} else {
 			ss := NewStreamStore()
@@ -282,7 +281,8 @@ func (h *Handler) handleCommand(rawStr string) string {
 			sEntry := NewStreamEntry(eId, sKV)
 			ss.entries = append(ss.entries, sEntry)
 			ss.lastId = &eId
-			lastId = eId
+			lastId.timestamp = eId.timestamp
+			lastId.timestamp = int64(eId.seq)
 			stream[strs[1]] = ss
 			h.Write(h.BulkStringResponse(s.EntryIdToString(eId)))
 		}
