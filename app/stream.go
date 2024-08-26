@@ -46,9 +46,8 @@ func (s *StreamStore) ValidateEntryId(id string) (ok bool, err error) {
 	ids := strings.Split(id, "-")
 	lastMil := 0
 	lastSeq := 0
-	fmt.Println("ids: ", s)
 
-	if s.lastId != nil {
+	if s != nil && s.lastId != nil {
 		lastMil = s.lastId.timestamp
 		lastSeq = s.lastId.seq
 	}
