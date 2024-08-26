@@ -242,9 +242,9 @@ func (h *Handler) handleCommand(rawStr string) string {
 				Value: val,
 			})
 
-			if id != "*" {
-				t, _ := ConverIdEntryInt(ids)
-				eId, ok := s.FindEntryId(t)
+			if id != "*" && ids[1] == "*" {
+				t, _ := strconv.ParseInt(ids[0], 10, 64)
+				eId, ok = s.FindEntryId(t)
 				if ok {
 					eId.seq++
 				}
